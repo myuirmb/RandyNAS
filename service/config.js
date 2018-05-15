@@ -3,11 +3,8 @@ const cd = require('./config/config.dev');
 const lcp = require('./config/log.config.pro');
 const lcd = require('./config/log.config.dev');
 
-//set system path is dev;
-const _sys_ = 'dev';
-
-// const config = (ct) => {
-//     if (_sys_) {
+// const config = (ct,sys=1) => {
+//     if (sys) {
 //         if (ct) {
 //             return lcd;
 //         }
@@ -26,6 +23,6 @@ const _sys_ = 'dev';
 //     }
 // };
 
-const config = (ct) => _sys_ ? (ct ? lcd : cd) : (ct ? lcp : cp);
+const config = (ct, sys = 1) => sys ? (ct ? lcd : cd) : (ct ? lcp : cp);
 
 module.exports = config;

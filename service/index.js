@@ -7,7 +7,7 @@ const config=require('./config')();
 const app = express();
 const server = http.createServer(app);
 server.listen(config.http.port, () => {
-    console.log('http service is run as port 13579');
+    console.log(`http service is run as port ${config.http.port}`);
 });
 
 const jp = bodyparser.json();
