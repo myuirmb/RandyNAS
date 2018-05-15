@@ -1,0 +1,27 @@
+{
+  "name": "RandyNas",
+  "version": "1.0.0",
+  "description": "test",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git"
+  },
+  "keywords": [
+    "randy",
+    "nas"
+  ],
+  "author": "randy",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.16.3",
+    "log4js": "^2.6.0",
+    "uuid": "^3.2.1"
+  }
+}
