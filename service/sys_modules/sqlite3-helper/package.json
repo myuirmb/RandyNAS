@@ -1,0 +1,6 @@
+{
+    "name": "sqlite3-helper",
+    "main": "./lib/index.js",
+    "description": "sqlite3 helper",
+    "version": "1.0.0"
+}
