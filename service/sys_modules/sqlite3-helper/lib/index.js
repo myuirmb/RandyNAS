@@ -22,7 +22,7 @@ class sqlitehelper extends events {
 
         this.conn = new sqlite3.Database(conf.sql.sqlite.path, (err) => {
             if (err) {
-                logger.error(`randy.nas connect the sqlite3 database[${conf.sql.sqlite.path}] error:[${err}]`);
+                this.logger.error(`randy.nas connect the sqlite3 database[${conf.sql.sqlite.path}] error:[${err}]`);
             }
             else {
                 this.logger.info(`randy.nas connect the sqlite3 database[${conf.sql.sqlite.path}] okey`);
