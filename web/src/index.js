@@ -1,5 +1,5 @@
 import React from 'react';
-import Root from './containers/Root';
+import Root from './containers/Root/index.jsx';
 
 render(
     <Root></Root>,
