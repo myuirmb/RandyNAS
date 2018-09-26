@@ -5,6 +5,10 @@ class Root extends Component {
         super();
     }
 
+    componentWillMount(){
+        console.log(arguments);
+    }
+
     render(){
         return (
             <div>abc</div>
