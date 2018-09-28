@@ -3,13 +3,11 @@ const webpack = require('webpack');
 const htmlwebpackplugin = require('html-webpack-plugin');
 const extracttextwebpackplugin = require('extract-text-webpack-plugin');
 
-const srcPath = path.resolve(__dirname, '../src');
-
 const config = {
-    //context: srcPath,
+    devtool: 'source-map',
 
     entry: {
-        index: '../src/index.js',
+        index: './src/index.js',
         vendor: [
             'react',
             'react-dom'
@@ -17,14 +15,13 @@ const config = {
     },
 
     output: {
-        //path: '../dist/',
-        path:path.resolve(__dirname,'../dist/'),
-        publicPath:'/dist/',
-        filename: 'js/[name].js'
+        path: path.resolve(__dirname, '../dist'),
+        //publicPath: '/dist/',
+        filename: './js/[name].js'
     },
 
     module: {
-        loaders: [
+        rules: [
             {
                 test: /\.(js|jsx)$/,
                 exclude: /node_modules/,
@@ -65,22 +62,23 @@ const config = {
     },
 
     resolve: {
-        extensions: ['', 'js', 'jsx']
+        extensions: ['.js', '.jsx']
     },
 
     plugins: [
-        // new webpack.optimize.CommonsChunkPlugin({
-        //     name: 'vendor',
-        //     filename: 'vendor-[name].js'
-        // }),
         new htmlwebpackplugin({
-            template: './src/index.html'
+            template: './src/index.html',
+            hash: true
         }),
-        new extracttextwebpackplugin('index.css')
+        new extracttextwebpackplugin('./index.css')
     ],
 
     devServer: {
-        port: 13580
+        contentBase: './src',
+        port: 13580,
+        stats: {
+            children: false
+        }
     }
 };
 
