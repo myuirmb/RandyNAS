@@ -16,7 +16,7 @@ const config = {
 
     output: {
         path: path.resolve(__dirname, '../dist'),
-        //publicPath: '/dist/',
+        publicPath: '',
         filename: './js/[name].js'
     },
 
@@ -68,7 +68,22 @@ const config = {
     plugins: [
         new htmlwebpackplugin({
             template: './src/index.html',
-            hash: true
+            hash: true,
+      
+            files: {
+                css: ['index.css'],
+                js: ['index.js', 'vendor.js'],
+                chunks: {
+                    head: {
+                        entry: 'vendor.js',
+                        css: ['index.css']
+                    },
+                    main: {
+                        entry: 'index.js',
+                        css: []
+                    }
+                }
+            }
         }),
         new extracttextwebpackplugin('./index.css')
     ],
