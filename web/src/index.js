@@ -1,22 +1,23 @@
 import React from 'react';
-//import ReactDOM from 'react-dom';
 import { render } from 'react-dom';
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
-import num from './reducers/root';
-import { addNum, janNum, addNumAsync } from './actions/root';
-import Root from './containers/Root';
+
+import reducers from './reducers';
+import MyRouter from './router'
+//import Login from './containers/Login';
 
 import './assets/scss/index.scss';
 
 const store = createStore(
-    num,
+    reducers,
     compose(
         applyMiddleware(thunk),
         window.devToolsExtension ? window.devToolsExtension() : () => null
     )
 );
+
 // store.subscribe(function () {
 //     ReactDOM.render(
 //         <Root store={store} addNum={addNum} janNum={janNum} addNumAsync={addNumAsync}></Root>,
@@ -30,9 +31,9 @@ const store = createStore(
 // );
 
 render(
-    <Provider store={store}>
-        <Root />
-    </Provider>,
+    (<Provider store={store}>
+        <MyRouter />
+    </Provider>),
     document.getElementById('root')
 );
 

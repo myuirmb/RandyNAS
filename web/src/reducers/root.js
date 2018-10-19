@@ -1,6 +1,6 @@
 import { ADD_NUM, JAN_NUM } from '../actions/root';
 
-const initState = 9;
+const initState = 900;
 
 // export function conter(state = initState, action) {
 //     let newState = null;

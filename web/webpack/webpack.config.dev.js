@@ -26,10 +26,11 @@ const config = {
                 test: /\.(js|jsx)$/,
                 exclude: /node_modules/,
                 use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['env', 'react']
-                    }
+                    loader: 'babel-loader'
+                    // ,  //this connect fail
+                    // options: {
+                    //     presets: ['env', 'react']
+                    // }
                 }
             },
             {
@@ -68,22 +69,22 @@ const config = {
     plugins: [
         new htmlwebpackplugin({
             template: './src/index.html',
-            hash: true,
-      
-            files: {
-                css: ['index.css'],
-                js: ['index.js', 'vendor.js'],
-                chunks: {
-                    head: {
-                        entry: 'vendor.js',
-                        css: ['index.css']
-                    },
-                    main: {
-                        entry: 'index.js',
-                        css: []
-                    }
-                }
-            }
+            hash: true
+            // ,
+            // files: {
+            //     css: ['index.css'],
+            //     js: ['index.js', 'vendor.js'],
+            //     chunks: {
+            //         head: {
+            //             entry: 'vendor.js',
+            //             css: ['index.css']
+            //         },
+            //         main: {
+            //             entry: 'index.js',
+            //             css: []
+            //         }
+            //     }
+            // }
         }),
         new extracttextwebpackplugin('./index.css')
     ],
@@ -91,8 +92,21 @@ const config = {
     devServer: {
         contentBase: './src',
         port: 13580,
+        historyApiFallback: true,
+        // compress: false,
+        // inline: true,
+        // hot: true,
+        // host: '127.0.0.1',
         stats: {
-            children: false
+            // assets: true,
+            children: false,
+            // chunks: false,
+            // hash: false,
+            // modules: false,
+            // publicPath: false,
+            // timings: true,
+            // version: false,
+            // warnings: true,
         }
     }
 };
