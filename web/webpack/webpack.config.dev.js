@@ -93,7 +93,7 @@ const config = {
         contentBase: './src',
         port: 13580,
         historyApiFallback: true,
-        // compress: false,
+        // compress: false,  //压缩
         // inline: true,
         // hot: true,
         // host: '127.0.0.1',
@@ -107,6 +107,15 @@ const config = {
             // timings: true,
             // version: false,
             // warnings: true,
+        },
+        proxy: {
+            '/api': {
+                target: 'http://localhost:13579',
+                //changeOrigin: true,
+                pathRewrite: {
+                    '^/api': ''
+                }
+            }
         }
     }
 };

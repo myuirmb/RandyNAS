@@ -18,7 +18,7 @@ export function logGetData(data) {
 
 export function getData() {
     return dispatch => {
-        axios.get('/').then(res => {
+        axios.get('/api').then(res => {
             dispatch(logGetData(res.data));
         });
     };

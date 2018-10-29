@@ -8,8 +8,9 @@ import { logout } from '../../actions/login';
     state => ({
         num: state.num,
         loginflag: state.login
-    }),
-    { addNum, janNum, addNumAsync, logout }
+    })
+    // ,
+    // { addNum, janNum, addNumAsync, logout }
 )
 class Root extends Component {
     constructor() {
@@ -22,28 +23,29 @@ class Root extends Component {
 
     btnAddClick() {
         // const { dispatch } = this.props.store;
-        // dispatch(this.props.addNum());
+        // dispatch(addNum());
         const { addNum } = this.props;
         addNum();
     }
 
     btnJanClick() {
         // const { dispatch } = this.props.store;
-        // dispatch(this.props.janNum());
+        // dispatch(janNum());
         const { janNum } = this.props;
         janNum();
     }
 
     btnAddAsyncClick() {
         // const { dispatch } = this.props.store;
-        // dispatch(this.props.addNumAsync());
+        // dispatch(addNumAsync());
         const { addNumAsync } = this.props;
         addNumAsync();
     }
 
     btnLogoutClick() {
-        const { logout } = this.props;
-        logout();
+        //const { logout } = this.props;
+        const {dispatch}=this.props;
+        dispatch(logout());
     }
 
     componentWillMount() {
