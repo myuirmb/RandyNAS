@@ -9,8 +9,8 @@ import { logout } from '../../actions/login';
         num: state.num,
         loginflag: state.login
     })
-    // ,
-    // { addNum, janNum, addNumAsync, logout }
+    ,
+    { addNum, janNum, addNumAsync, logout }
 )
 class Root extends Component {
     constructor() {
@@ -43,9 +43,10 @@ class Root extends Component {
     }
 
     btnLogoutClick() {
-        //const { logout } = this.props;
-        const {dispatch}=this.props;
-        dispatch(logout());
+        const { logout } = this.props;
+        logout();
+        // const {dispatch}=this.props;
+        // dispatch(logout());
     }
 
     componentWillMount() {

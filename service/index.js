@@ -82,15 +82,18 @@ const cp = cookieparser();
 //const urlp = bodyparser.urlencoded({ extended: false });
 
 
-app.get('/', jp, cp, (req, res) => {
+app.get('/', jp, cp, async (req, res) => {
+    // res.setHeader('Content-Type', 'text/plain');
+    // res.send('hello world...');
+    // res.end();
+
+    // let conn = await sh.init();
     res.setHeader('Content-Type', 'text/plain');
-    res.send('hello world...');
+    res.send('--');
     res.end();
-    
-    
 
     // const sh = new sqlitehelper();
-    // sh.init();
+
 
     // sh.on('sqliteres', (res, flag) => {
     //     let resstr = '';
@@ -104,11 +107,11 @@ app.get('/', jp, cp, (req, res) => {
 
     //     //sh.close();
     // });
-
+    // sh.init();
     // sh.sqlall({
-    //     sql:'select * from sys_action where id<>$id;',
+    //     sql:'select * from sys_user where id<>$id;',
     //     val:{$id:'d56e6371-a2fa-4533-9584-ac3840530ce9'}
     // }, 'select.all-sys_action');
 
-    
+
 });

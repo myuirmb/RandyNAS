@@ -4,8 +4,8 @@ import { Redirect } from 'react-router-dom';
 import { login, getData } from '../../actions/login';
 
 @connect(
-    state => ({ loginflag: state.login }),
-    { login ,getData}
+    state => ({ loginflag: state.login }) //,
+    //{ login ,getData}
 )
 class Login extends Component {
     constructor() {
@@ -14,13 +14,17 @@ class Login extends Component {
     }
 
     btnClick() {
-        const { login } = this.props;
-        login();
+        // const { login } = this.props;
+        // login();
+        const {dispatch}=this.props;
+        dispatch(login());
     }
 
     componentWillMount() {
-        const {getData} =this.props;
-        getData();
+        // const {getData} =this.props;
+        // getData();
+        const {dispatch}=this.props;
+        dispatch(getData());
     }
 
     render() {

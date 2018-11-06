@@ -7,6 +7,8 @@ export default combineReducers({
     login
 });
 
+// export default login;
+
 //---------------------------------------------------------------------------
 // import { createStore } from 'redux';
 

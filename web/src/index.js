@@ -1,6 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { createStore, applyMiddleware, compose } from 'redux';
+// import createStore from './nas-redux';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 
@@ -17,6 +18,7 @@ const store = createStore(
         window.devToolsExtension ? window.devToolsExtension() : () => null
     )
 );
+// const store = createStore(reducers);
 
 // store.subscribe(function () {
 //     ReactDOM.render(

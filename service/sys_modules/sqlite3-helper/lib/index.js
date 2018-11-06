@@ -16,18 +16,19 @@ class sqlitehelper extends events {
 
     init() {
         let conf = config();
-
         log4js.configure(config(1));
         this.logger = log4js.getLogger('sqlite-helper.index');
 
         this.conn = new sqlite3.Database(conf.sql.sqlite.path, (err) => {
             if (err) {
                 this.logger.error(`randy.nas connect the sqlite3 database[${conf.sql.sqlite.path}] error:[${err}]`);
+                reject('conn.error');
             }
             else {
                 this.logger.info(`randy.nas connect the sqlite3 database[${conf.sql.sqlite.path}] okey`);
+                resolve('conn.okey');
             }
-            this.emit('sqliteres', err, 'init');
+            //this.emit('sqliteres', err, 'init');
         });
     }
 
@@ -53,7 +54,7 @@ class sqlitehelper extends events {
                     $utype: 'test',
                     $stime: Date.now()
                 };
-                this.logger.info(val);
+                //this.logger.info(val);
                 sql.run(val, (err) => {
                     if (err) {
                         this.logger.error('func test() sql.run error:\r\n', val, '\r\n', err, '\r\n');

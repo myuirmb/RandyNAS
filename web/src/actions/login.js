@@ -12,14 +12,14 @@ export function logout() {
     return { type: LOG_OUT };
 }
 
-export function logGetData(data) {
+export function logData(data) {
     return { type: LOG_GET_DATA, data };
 }
 
 export function getData() {
     return dispatch => {
         axios.get('/api').then(res => {
-            dispatch(logGetData(res.data));
+            dispatch(logData(res.data));
         });
     };
 }
