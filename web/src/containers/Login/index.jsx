@@ -4,7 +4,9 @@ import { Redirect } from 'react-router-dom';
 import { login, getData } from '../../actions/login';
 
 @connect(
-    state => ({ loginflag: state.login }) //,
+    //state=>state.get('login')
+    state=>({login:state.get('login')})
+    //state => ({ loginflag: state.login }) //,
     //{ login ,getData}
 )
 class Login extends Component {
@@ -28,13 +30,13 @@ class Login extends Component {
     }
 
     render() {
-        console.log(this.props.loginflag.login);
-        if(this.props.loginflag.login){
+        console.log(this.props.login.get('login'));
+        if(this.props.login.get('login')){
             return <Redirect to='/main' />
         }
         return (
             <div>
-                <h3>{this.props.loginflag.data}</h3>
+                <h3>{this.props.login.get('data')}</h3>
                 <input type='button' value='login' onClick={this.btnClick} />
             </div>
         );

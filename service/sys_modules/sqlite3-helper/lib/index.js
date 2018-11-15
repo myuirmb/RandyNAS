@@ -1,34 +1,34 @@
-const events = require('events');
+//const events = require('events');
 const sqlite3 = require('sqlite3').verbose();
 const log4js = require('log4js');
 const uuidv4 = require('uuid/v4');
 const config = require('../../../config');
 
-
-class sqlitehelper extends events {
+//class sqlitehelper extends events {
+class sqlitehelper {
     constructor() {
-        super();
+        //super();
         this.logger = null;
         this.conn = null;
-
-        //this.init();
     }
 
     init() {
-        let conf = config();
-        log4js.configure(config(1));
-        this.logger = log4js.getLogger('sqlite-helper.index');
+        return new Promise((resolve, reject) => {
+            let conf = config();
+            log4js.configure(config(1));
+            this.logger = log4js.getLogger('sqlite-helper.index');
 
-        this.conn = new sqlite3.Database(conf.sql.sqlite.path, (err) => {
-            if (err) {
-                this.logger.error(`randy.nas connect the sqlite3 database[${conf.sql.sqlite.path}] error:[${err}]`);
-                reject('conn.error');
-            }
-            else {
-                this.logger.info(`randy.nas connect the sqlite3 database[${conf.sql.sqlite.path}] okey`);
-                resolve('conn.okey');
-            }
-            //this.emit('sqliteres', err, 'init');
+            this.conn = new sqlite3.Database(conf.sql.sqlite.path, (err) => {
+                if (err) {
+                    this.logger.error(`randy.nas connect the sqlite3 database[${conf.sql.sqlite.path}] error:[${err}]`);
+                    reject('conn.error');
+                }
+                else {
+                    this.logger.info(`randy.nas connect the sqlite3 database[${conf.sql.sqlite.path}] okey`);
+                    resolve('conn.okey');
+                }
+                //this.emit('sqliteres', err, 'init');
+            });
         });
     }
 
@@ -85,31 +85,35 @@ class sqlitehelper extends events {
      * @param flag {string}
      */
     sqlexec(so, flag) {
-        this.conn.serialize(() => {
-            let res = { res: 0, err: [] };
-            let sql = this.conn.prepare(so.sql);
-            for (let i = 0, len = so.val.length; i < len; i++) {
-                sql.run(so.val[i], (err) => {
+        return new Promise((resolve, reject) => {
+            this.conn.serialize(() => {
+                let res = { res: 0, err: [] };
+                let sql = this.conn.prepare(so.sql);
+                for (let i = 0, len = so.val.length; i < len; i++) {
+                    sql.run(so.val[i], (err) => {
+                        if (err) {
+                            res.err.push({ error: err, val: so.val[i] });
+                            this.logger.error(`class method sqlexec[${so.sql.substr(0, 6)}] sql.run error:\r\n`, so.val[i], '\r\n', err, '\r\n');
+                        }
+                        else {
+                            res.res += 1;
+                            this.logger.info(`class method sqlexec[${so.sql.substr(0, 6)}] sql.run okey.\r\n`, so.val[i], '\r\n');
+                        }
+                    });
+                }
+                sql.finalize((err) => {
                     if (err) {
-                        res.err.push({ error: err, val: so.val[i] });
-                        this.logger.error(`class method sqlexec[${so.sql.substr(0, 6)}] sql.run error:\r\n`, so.val[i], '\r\n', err, '\r\n');
+                        this.logger.error(`class method sqlexec[${so.sql.substr(0, 6)}] sql.finalize error:\r\n`, err);
+                        res.err.push({ error: err });
+                        reject(res);
                     }
                     else {
-                        res.res += 1;
-                        this.logger.info(`class method sqlexec[${so.sql.substr(0, 6)}] sql.run okey.\r\n`, so.val[i], '\r\n');
+                        this.logger.info(`class method sqlexec[${so.sql.substr(0, 6)}] sql.finalize okey.\r\n`);
+                        resolve(res);
                     }
-                });
-            }
-            sql.finalize((err) => {
-                if (err) {
-                    this.logger.error(`class method sqlexec[${so.sql.substr(0, 6)}] sql.finalize error:\r\n`, err);
-                    res.err.push({ error: err });
-                }
-                else {
-                    this.logger.info(`class method sqlexec[${so.sql.substr(0, 6)}] sql.finalize okey.\r\n`);
-                }
 
-                this.emit('sqliteres', res, `sqlexec_${flag}`);
+                    //this.emit('sqliteres', res, `sqlexec_${flag}`);
+                });
             });
         });
     }
@@ -124,13 +128,20 @@ class sqlitehelper extends events {
      * @param flag {string}
      */
     sqlget(so, flag) {
-        this.conn.serialize(() => {
-            //let res = { res: 0, err: [] };
-            let sql = this.conn.get(so.sql, so.val, (err, row) => {
-                if (err) this.logger.error('class method sqlget error:\r\n', err);
-                else this.logger.info('class method sqlget okey.\r\n');
-
-                this.emit('sqliteres', { res: row, err: err }, `sqlget_${flag}`);
+        return new Promise((resolve, reject) => {
+            this.conn.serialize(() => {
+                //let res = { res: 0, err: [] };
+                let sql = this.conn.get(so.sql, so.val, (err, row) => {
+                    if (err) {
+                        this.logger.error('class method sqlget error:\r\n', err);
+                        reject(err);
+                    }
+                    else {
+                        this.logger.info('class method sqlget okey.\r\n');
+                        resolve(row);
+                    }
+                    //this.emit('sqliteres', { res: row, err: err }, `sqlget_${flag}`);
+                });
             });
         });
     }
@@ -144,24 +155,46 @@ class sqlitehelper extends events {
      * }
      * @param flag {string}
      */
-    sqlall(so, flag) {
-        this.conn.serialize(() => {
-            //let res = { res: 0, err: [] };
-            let sql = this.conn.all(so.sql, so.val, (err, rows) => {
-                if (err) this.logger.error('class method sqlall error:\r\n', err);
-                else this.logger.info('class method sqlall okey.\r\n');
+    // sqlall(so, flag) {
+    //     this.conn.serialize(() => {
+    //         //let res = { res: 0, err: [] };
+    //         let sql = this.conn.all(so.sql, so.val, (err, rows) => {
+    //             if (err) this.logger.error('class method sqlall error:\r\n', err);
+    //             else this.logger.info('class method sqlall okey.\r\n');
 
-                this.emit('sqliteres', { res: rows, err: err }, `sqlall_${flag}`);
+    //             this.emit('sqliteres', { res: rows, err: err }, `sqlall_${flag}`);
+    //         });
+    //     });
+    // }
+    sqlall(so, flag) {
+        return new Promise((resolve, reject) => {
+            this.conn.serialize(() => {
+                this.conn.all(so.sql, so.val, (err, rows) => {
+                    if (err) {
+                        this.logger.error('class method sqlall error:\r\n', err);
+                        reject(err);
+                    }
+                    else {
+                        this.logger.info('class method sqlall okey.\r\n');
+                        resolve(rows);
+                    }
+                });
             });
         });
     }
 
     close() {
-        this.conn.close((err) => {
-            if (err) this.logger.error(`randy.nas sqlite3 database close error:${err}`);
-            else this.logger.info('randy.nas sqlite3 database close success.');
-
-            this.emit('sqliteres', err, 'close');
+        return new Promise((resolve, reject) => {
+            this.conn.close((err) => {
+                if (err) {
+                    this.logger.error(`randy.nas sqlite3 database close error:${err}`);
+                    reject(`close error: ${err}`);
+                }
+                else {
+                    this.logger.info('randy.nas sqlite3 database close success.');
+                    resolve('close okey')
+                }
+            });
         });
     }
 }

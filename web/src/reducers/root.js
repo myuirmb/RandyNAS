@@ -1,6 +1,7 @@
+import Immuable from 'immutable';
 import { ADD_NUM, JAN_NUM } from '../actions/root';
 
-const initState = 900;
+const initState = Immuable.Map({gun:900});
 
 // export function conter(state = initState, action) {
 //     let newState = null;
@@ -19,8 +20,8 @@ const initState = 900;
 // }
 
 const actions = {
-    [ADD_NUM]: state => state + 1,
-    [JAN_NUM]: state => state - 1
+    [ADD_NUM]: state => state.update('gun',x=>x+1),
+    [JAN_NUM]: state => state.update('gun',x=>x-1)
 };
 
 export default function num(state = initState, action = {}) {

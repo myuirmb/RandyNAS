@@ -5,10 +5,14 @@ import { addNum, janNum, addNumAsync } from '../../actions/root';
 import { logout } from '../../actions/login';
 
 @connect(
-    state => ({
-        num: state.num,
-        loginflag: state.login
+    state=>({
+        num:state.get('num'),
+        login:state.get('login')
     })
+    // state => ({
+    //     num: state.num,
+    //     loginflag: state.login
+    // })
     ,
     { addNum, janNum, addNumAsync, logout }
 )
@@ -55,14 +59,15 @@ class Root extends Component {
 
     render() {
         //const num = this.props.store.getState();
-        if(!this.props.loginflag.login){
+        const {login,num}=this.props;
+        if(!login.get('login')){
             return <Redirect to='/login' /> 
         }
         return (
             <div>
                 <h1>Main</h1>
                 <div><button onClick={this.btnLogoutClick}>Logout</button></div>
-                <div>now num is <span>{this.props.num}</span></div>
+                <div>now num is <span>{num.get('gun')}</span></div>
                 <input type='button' onClick={this.btnAddClick} value='ADD' />
                 <input type='button' onClick={this.btnJanClick} value='JAN' />
                 <input type='button' onClick={this.btnAddAsyncClick} value='ADDASYNC' />

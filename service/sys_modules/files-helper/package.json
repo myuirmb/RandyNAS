@@ -1,0 +1,6 @@
+{
+    "name": "files-helper",
+    "main": "./lib/index.js",
+    "description": "files helper",
+    "version": "1.0.0"
+}
