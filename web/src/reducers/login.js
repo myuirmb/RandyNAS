@@ -15,14 +15,17 @@ import { LOG_IN, LOG_OUT, LOG_GET_DATA } from '../actions/login';
 // }
 
 const initState = Immutable.Map({
-    login: false,
-    user: 'lucy',
+    sign: false,
+    un: 'lucy',     //user name
+    ut: 'guest',    //user type
+    gu: true,       //guest true:支持匿名登录，false:不支持匿名登录
+    token: '',
     data: 'nihao...'
 });
 
 const actions = {
-    [LOG_IN]: state => state.set('login', true),
-    [LOG_OUT]: state => state.set('login', false),
+    [LOG_IN]: state => state.set('sign', true),
+    [LOG_OUT]: state => state.set('sign', false),
     [LOG_GET_DATA]: (state, action) => state.merge(action.data)
 };
 

@@ -109,11 +109,11 @@ const config = {
             // warnings: true,
         },
         proxy: {
-            '/api': {
+            '/api/*': {
                 target: 'http://localhost:13579',
                 //changeOrigin: true,
                 pathRewrite: {
-                    '^/api': ''
+                    '^/api/': ''
                 }
             }
         }

@@ -14,10 +14,11 @@ class MyRouter extends Component {
     render() {
         return (
             <BrowserRouter>
-                <Switch>
+                <Switch>{/*<div style={{border:'1px solid red'}}>*/}
+                    <Route path='/' exact component={Login}></Route>
                     <Route path='/login' component={Login}></Route>
                     <Route path='/main' component={Root}></Route>
-                </Switch>
+                </Switch>{/*</div>*/}
             </BrowserRouter>
         );
     }

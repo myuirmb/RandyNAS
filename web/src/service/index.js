@@ -15,14 +15,20 @@ const responseTypes = {
 const cfg = {
     method: 'get',
     baseUR: conf.service.url,
-    headers: {'Content-Type':contentTypes.json},
+    headers: { 'Content-Type': contentTypes.json },
     responseType: responseTypes.json
 };
 
-const service = (obj) => {
+const service = (url, token = 'Bearer', obj = {}) => {
     const req = {};
-    Object.assign(req, cfg, obj);
-    return axios(req).then(res=>Immutable.fromJS(res.data)).catch(e=>{throw e});
+    Object.assign(
+        req, 
+        cfg, 
+        { headers: { token: `Bearer ${token}` } }, 
+        { url: `/api/${conf.service.interface[url]}` }, 
+        obj
+    );
+    return axios(req).then(res => Immutable.fromJS(res.data)).catch(e => { throw e });
 }
 
 export default service;

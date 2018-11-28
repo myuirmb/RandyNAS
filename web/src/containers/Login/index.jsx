@@ -26,16 +26,17 @@ class Login extends Component {
         // const {getData} =this.props;
         // getData();
         const {dispatch}=this.props;
-        dispatch(getData());
+        const gd=getData();
+        dispatch(gd);
     }
 
     render() {
         console.log(this.props.login.get('login'));
-        if(this.props.login.get('login')){
+        if(this.props.login.get('sign')){
             return <Redirect to='/main' />
         }
         return (
-            <div>
+            <div style={{border:'1px solid red'}}>
                 <h3>{this.props.login.get('data')}</h3>
                 <input type='button' value='login' onClick={this.btnClick} />
             </div>

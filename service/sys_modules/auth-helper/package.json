@@ -1,0 +1,6 @@
+{
+    "name": "auth-helper",
+    "main": "./lib/index.js",
+    "description": "auth helper",
+    "version": "1.0.0"
+}

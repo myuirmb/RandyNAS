@@ -13,11 +13,11 @@ class sqlitehelper {
     }
 
     init() {
-        return new Promise((resolve, reject) => {
-            let conf = config();
-            log4js.configure(config(1));
-            this.logger = log4js.getLogger('sqlite-helper.index');
+        let conf = config();
+        log4js.configure(config(1));
+        this.logger = log4js.getLogger('sqlite-helper.index');
 
+        return new Promise((resolve, reject) => {
             this.conn = new sqlite3.Database(conf.sql.sqlite.path, (err) => {
                 if (err) {
                     this.logger.error(`randy.nas connect the sqlite3 database[${conf.sql.sqlite.path}] error:[${err}]`);

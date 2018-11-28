@@ -42,6 +42,21 @@ class fileshelper extends events {
         });
     }
 
+    readfilep(fpath){
+        return new Promise((resolve,reject)=>{
+            fs.readFile(fpath,(err,data)=>{
+                if(err) {
+                    this.logger.error(`class method readfilep(Promise) fs.readFile is error: ${fpath} => ${err} `);
+                    reject(err);
+                }
+                else{
+                    this.logger.info(`class method readfilep(Promise) fs.readFile is okey: ${fpath}`);
+                    resolve(data);
+                }
+            });
+        });
+    }
+
     readdirp(fpath){
         return new Promise((resolve,reject)=>{
             fs.readdir(fpath,(err,files)=>{

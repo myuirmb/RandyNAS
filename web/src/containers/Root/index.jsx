@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import {Redirect} from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import { addNum, janNum, addNumAsync } from '../../actions/root';
 import { logout } from '../../actions/login';
 
 @connect(
-    state=>({
-        num:state.get('num'),
-        login:state.get('login')
+    state => ({
+        num: state.get('num'),
+        login: state.get('login')
     })
     // state => ({
     //     num: state.num,
@@ -59,9 +59,9 @@ class Root extends Component {
 
     render() {
         //const num = this.props.store.getState();
-        const {login,num}=this.props;
-        if(!login.get('login')){
-            return <Redirect to='/login' /> 
+        const { login, num } = this.props;
+        if (!login.get('sign')) {
+            return <Redirect to='/login' />
         }
         return (
             <div>
