@@ -8,13 +8,14 @@ const config = require('../../../config');
 class fileshelper extends events {
     constructor() {
         super();
-        this.logger = null;
-    }
-
-    init() {
+        
         //let conf = config();
         log4js.configure(config(1));
         this.logger = log4js.getLogger('files-helper.index');
+    }
+
+    init() {
+        
     }
 
     traverse(fpath) {
@@ -40,6 +41,17 @@ class fileshelper extends events {
                 }
             }
         });
+    }
+
+    readfilesync(fpath){
+        let fc=null;
+        try{
+            fc=fs.readFileSync(fpath);
+        }
+        catch(err){
+            this.logger.error(`class method readfilesync fs.readFileSync is error: ${fpath} => ${err} `);
+        }
+        return fc;
     }
 
     readfilep(fpath){

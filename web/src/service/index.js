@@ -24,7 +24,7 @@ const service = (url, token = 'Bearer', obj = {}) => {
     Object.assign(
         req, 
         cfg, 
-        { headers: { token: `Bearer ${token}` } }, 
+        { headers: { Authorization: `Bearer ${token}` } }, 
         { url: `/api/${conf.service.interface[url]}` }, 
         obj
     );

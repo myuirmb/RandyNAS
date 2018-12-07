@@ -1,3 +1,4 @@
+const path = require('path');
 const events = require('events');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
@@ -11,17 +12,58 @@ const fileshelper = require('../../files-helper');
 class authhelper extends events {
     constructor(request, response) {
         super();
-        this.req = request;
-        this.res = response;
-        this.logger = null;
-    }
-
-    init() {
+        // this.req = request;
+        // this.res = response;
+        this.conf = config();
         log4js.configure(config(1));
         this.logger = log4js.getLogger('auth-helper.index');
     }
 
-    
+    init() {
+
+    }
+
+    verify(token, pubkey, prikey) {
+        const tempid = this.strto(uuidv4());
+        //const decoded=await this.jwtvfy(token,pubkey);
+        let tk;
+        if (decoded) {
+            if (decoded.ut === 'user') {
+
+
+            }
+            else {
+                tk = {};
+                Object.assign(tk, decoded, { iat: Date.now(), gu: this.conf.vfy.guest });
+            }
+
+        }
+        else {
+            tk = {
+                ud: tempid,
+                un: `g_${tempid}`,
+                ut: 'guest',
+                gu: this.conf.vfy.guest
+            };
+        }
+
+        return tk;
+    }
+
+    jwtdecode(token, publickey) {
+        return new Promise((resolve, reject) => {
+            jwt.verify(token, publickey, (err, decoded) => {
+                if (err) {
+                    this.logger.error(`class auth helper verify feild error: ${err}`);
+                    reject(null);
+                }
+                else {
+                    this.logger.info(`class auth helper verify feild okey: ${decoded}`);
+                    resolve(decoded);
+                }
+            });
+        });
+    }
 
     tostr(data) {
         let redata = '';

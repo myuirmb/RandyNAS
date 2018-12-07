@@ -8,23 +8,23 @@ const config = require('../../../config');
 class sqlitehelper {
     constructor() {
         //super();
-        this.logger = null;
+
+        this.conf = config();
+        log4js.configure(config(1));
+        this.logger = log4js.getLogger('sqlite-helper.index');
+
         this.conn = null;
     }
 
     init() {
-        let conf = config();
-        log4js.configure(config(1));
-        this.logger = log4js.getLogger('sqlite-helper.index');
-
         return new Promise((resolve, reject) => {
-            this.conn = new sqlite3.Database(conf.sql.sqlite.path, (err) => {
+            this.conn = new sqlite3.Database(this.conf.sql.sqlite.path, (err) => {
                 if (err) {
-                    this.logger.error(`randy.nas connect the sqlite3 database[${conf.sql.sqlite.path}] error:[${err}]`);
+                    this.logger.error(`randy.nas connect the sqlite3 database[${this.conf.sql.sqlite.path}] error:[${err}]`);
                     reject('conn.error');
                 }
                 else {
-                    this.logger.info(`randy.nas connect the sqlite3 database[${conf.sql.sqlite.path}] okey`);
+                    this.logger.info(`randy.nas connect the sqlite3 database[${this.conf.sql.sqlite.path}] okey`);
                     resolve('conn.okey');
                 }
                 //this.emit('sqliteres', err, 'init');

@@ -16,8 +16,9 @@ import { LOG_IN, LOG_OUT, LOG_GET_DATA } from '../actions/login';
 
 const initState = Immutable.Map({
     sign: false,
+    ud: 'fc55886c-6ec5-4f37-9521-863f0d281554',
     un: 'lucy',     //user name
-    ut: 'guest',    //user type
+    ut: 'guest',    //user type(guest,user,root)
     gu: true,       //guest true:支持匿名登录，false:不支持匿名登录
     token: '',
     data: 'nihao...'

@@ -10,6 +10,16 @@ const config = {
         },
         mysql: {}
     },
+
+    vfy: {
+        guest: true,
+        auto:-1,
+        rsa: {
+            publickey: './config/public.key',
+            privatekey: './config/private.key'
+        }
+    },
+
     seq: {  //sequence
         // n: ['3', '2', '7', '6', '9', '4', '5', '8', '1', '0'],
         // s: ['e', 'a', 'd', 'f', 'c', 'b'],
