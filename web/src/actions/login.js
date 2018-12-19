@@ -27,10 +27,9 @@ export function getData() {
     // let res=await service({url:'/api'});
     // dispatch(logData(res.data));
 
-    return (dispatch, getState)=>{
-        const tk=getState().get('login').get('token');
-        //console.log(getState().get('login').get('token'),'--');
-        service('login', tk).then(res=>{
+    return (dispatch, getState) => {
+        const token = getState().get('login').get('tk');
+        service('init', token).then(res => {
             console.log(res);
             dispatch(logData(res));
         });

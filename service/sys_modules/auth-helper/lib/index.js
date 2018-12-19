@@ -54,11 +54,11 @@ class authhelper extends events {
         return new Promise((resolve, reject) => {
             jwt.verify(token, publickey, (err, decoded) => {
                 if (err) {
-                    this.logger.error(`class auth helper verify feild error: ${err}`);
+                    this.logger.error('class auth helper verify feild error: ', err);
                     reject(null);
                 }
                 else {
-                    this.logger.info(`class auth helper verify feild okey: ${decoded}`);
+                    this.logger.info('class auth helper verify feild okey:', decoded);
                     resolve(decoded);
                 }
             });
@@ -93,7 +93,7 @@ class authhelper extends events {
         const seqn = config().seq.n;
         if (data && typeof data === 'string') {
             for (let i = 0, len = data.length; i < len; i++) {
-                if (parseInt(data[i], 16) > -1) redata += seqn[parseInt(data[i], 16)]
+                if (/[a-f\d]/.test(data[i]) && parseInt(data[i], 16) > -1) redata += seqn[parseInt(data[i], 16)]
                 else redata += data[i];
             }
         }

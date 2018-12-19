@@ -10,6 +10,7 @@ import MyRouter from './router'
 //import Login from './containers/Login';
 
 import './assets/scss/index.scss';
+import './assets/scss/mask.scss';
 
 const store = createStore(
     reducers,

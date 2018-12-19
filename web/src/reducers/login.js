@@ -20,7 +20,6 @@ const initState = Immutable.Map({
     un: 'lucy',     //user name
     ut: 'guest',    //user type(guest,user,root)
     gu: true,       //guest true:支持匿名登录，false:不支持匿名登录
-    token: '',
     data: 'nihao...'
 });
 

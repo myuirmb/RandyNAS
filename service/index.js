@@ -1,4 +1,5 @@
 const http = require('http');
+const path=require('path');
 const express = require('express');
 const bodyparser = require('body-parser');
 const cookieparser = require('cookie-parser');
@@ -25,7 +26,7 @@ const sh = new sqlitehelper();
 const fh = new fileshelper();
 const privatekey = fh.readfilesync(conf.vfy.rsa.privatekey);
 const publickey = fh.readfilesync(conf.vfy.rsa.publickey);
-
+logger.info('----------init-----key-------------->', privatekey, publickey)
 
 //-----auth-helper--------------------------
 const ah = new authhelper();
@@ -75,89 +76,55 @@ app.get('/main', jp, cp, (req, res) => {
 
 app.get('/init', jp, cp, async (req, res) => {
     const { nas } = req.signedCookies;
+    //const tempid = ah.strto('ac36b873-5974-4b3c-be42-7165bb15c10d');
     const tempid = ah.strto(uuidv4());
-    let [info, temp,cf, initinfo] = [{}, {}, -1,{
+    const initinfo = {
         ud: tempid,
         un: `guest_${tempid.substr(0, 8)}`,     //user name
         ut: 'guest',                            //user type(guest,user,root)
-        gu: true,                               //guest true:支持匿名登录，false:不支持匿名登录 
-    }];
-    const decoded = await ah.jwtdecode(ah.tostr(nas), publickey);
-    if (decoded) {
-        if (decoded.ut === 'user') {
-            if (conf.vfy.auto > 0) {
-                let [conn, rows] = [null, null];
-                if (!sh.conn) conn = await sh.init();
-                rows = await sh.sqlget({
-                    sql: 'select * from sys_user where id=$id;',
-                    val: { $id: ah.tostr(decoded.ud) }
-                });
-                if (rows) {
-                    Object.assign(temp, { ud: ah.strto(rows.id), un: rows.username, ut: 'user' })
+        gu: true,                              //guest true:支持匿名登录，false:不支持匿名登录 
+    };
+    let [info, temp, cf] = [{}, {}, -1]
 
-                    // Object.assign(info, temp, { gu: conf.vfy.guest });
-                    // let token = ah.strto(jwt.sign(info, privatekey, { algorithm: 'RS256' }));
-                    // Object.assign(info, { tk: token });
+    if (nas) {
+        let decoded = null;
+        try { decoded = await ah.jwtdecode(ah.tostr(nas), publickey); } catch (e) { }
+        if (decoded) {
+            if (decoded.ut === 'user') {
+                if (conf.vfy.auto > 0) {
+                    let [conn, rows] = [null, null];
+                    if (!sh.conn) conn = await sh.init();
+                    rows = await sh.sqlget({
+                        sql: 'select * from sys_user where id=$id;',
+                        val: { $id: ah.tostr(decoded.ud) }
+                    });
+                    if (rows) Object.assign(temp, { ud: ah.strto(rows.id), un: rows.username, ut: 'user' })
+                    else cf = 0;
                 }
                 else {
-                    cf=0;
-
-                    // Object.assign(info, initinfo, { gu: conf.vfy.guest });
-                    // let token = ah.strto(jwt.sign(info, privatekey, { algorithm: 'RS256' }));
-                    // Object.assign(info, { tk: token });
-
-                    // res.cookie('nas', '', { maxAge: 0, httpOnly: true, 'signed': true });
+                    cf = 0;
                 }
             }
             else {
-                cf=0;
-
-                // Object.assign(info, initinfo, { gu: conf.vfy.guest });
-                // let token = ah.strto(jwt.sign(info, privatekey, { algorithm: 'RS256' }));
-                // Object.assign(info, { tk: token });
-
-                // res.cookie('nas', '', { maxAge: 0, httpOnly: true, 'signed': true });
+                Object.assign(temp, decoded);
             }
-        }
-        else {
-            Object.assign(temp,decoded);
-
-            // Object.assign(info, initinfo, decoded, { gu: conf.vfy.guest });
-            // let token = ah.strto(jwt.sign(info, privatekey, { algorithm: 'RS256' }));
-            // Object.assign(info, { tk: token });
-
-            // res.setHeader('Content-Type', 'text/plain');
-            // res.send(`{"data":"hello world","token":"${token}"}`);
-            // res.end();
         }
     }
     else {
-        cf=1;
-
-        // Object.assign(info, initinfo, { gu: conf.vfy.guest });
-        // let token = ah.strto(jwt.sign(info, privatekey, { algorithm: 'RS256' }));
-        // Object.assign(info, { tk: token });
-
-        // res.cookie('nas', token, { maxAge: 600000, httpOnly: true, 'signed': true });
-
-        // res.setHeader('Content-Type', 'text/plain');
-        // res.send(`{"data":"hello world","token":"${token}"}`);
-        // res.end();
+        cf = 1;
     }
 
-    Object.assign(info, initinfo,temp, { gu: conf.vfy.guest });
-    let token = ah.strto(jwt.sign(info, privatekey, { algorithm: 'RS256' }));
+    Object.assign(info, initinfo, temp, { gu: conf.vfy.guest });
+    const token = ah.strto(jwt.sign(info, privatekey, { algorithm: 'RS256' }));
     Object.assign(info, { tk: token });
 
-    if(cf===0)res.cookie('nas', '', { maxAge: 0, httpOnly: true, 'signed': true });
-    else if(cf===1)res.cookie('nas', token, { maxAge: 600000, httpOnly: true, 'signed': true });
+    if (cf === 0) res.cookie('nas', '', { maxAge: 0, httpOnly: true, 'signed': true });
+    else if (cf === 1) res.cookie('nas', token, { maxAge: 600000, httpOnly: true, 'signed': true });
 
     res.setHeader('Content-Type', 'text/plain');
-    res.send(`{"data":"hello world","user":"${info}","token":"${token}"}`);
+    res.send(`{"code":200,"data":${JSON.stringify(info)},"msg":"ok"}`);
+    //res.send(`{"code":"200","data":{"txt":"init is ok",${[...info]}},"msg":"ok"}`);
     res.end();
-
-
-    
 });
 
 app.get('/login', jp, cp, async (req, res) => {

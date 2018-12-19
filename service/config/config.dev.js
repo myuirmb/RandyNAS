@@ -6,17 +6,20 @@ const config = {
     sql: {
         type: 'sqlite',
         sqlite: {
-            path: './database/randy.nas.sqlite'
+            //path: './database/randy.nas.sqlite'
+            path: 'D:\\Randy\\nase\\randynas\\service\\database\\randy.nas.sqlite'
         },
         mysql: {}
     },
 
     vfy: {
-        guest: true,
-        auto:-1,
+        guest: false,
+        auto: 1000,
         rsa: {
-            publickey: './config/public.key',
-            privatekey: './config/private.key'
+            // publickey: './config/public.key',
+            // privatekey: './config/private.key'
+            publickey: 'D:\\Randy\\nase\\randynas\\service\\config\\public.key',
+            privatekey: 'D:\\Randy\\nase\\randynas\\service\\config\\private.key'
         }
     },
 
