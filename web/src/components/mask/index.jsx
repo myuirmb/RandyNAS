@@ -5,7 +5,9 @@ class Mask extends React.Component {
     static propTypes = {
         show: PropTypes.bool
     }
-
+    constructor(){
+        super()
+    }
     componentWillMount() {
         const { show } = this.props;
         // const body = document.querySelector('body');
@@ -19,7 +21,7 @@ class Mask extends React.Component {
 
     render() {
         const { show } = this.props;
-        return <div className='mask' style={{ display: `${show ? '' : 'none'}` }}></div>
+        return (<div className='mask' style={{ display: `${show ? '' : 'none'}` }}></div>);
     }
 }
 export default Mask;

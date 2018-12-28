@@ -82,7 +82,7 @@ app.get('/init', jp, cp, async (req, res) => {
         ud: tempid,
         un: `guest_${tempid.substr(0, 8)}`,     //user name
         ut: 'guest',                            //user type(guest,user,root)
-        gu: true,                              //guest true:支持匿名登录，false:不支持匿名登录 
+        gu: true,                               //guest true:支持匿名登录，false:不支持匿名登录 
     };
     let [info, temp, cf] = [{}, {}, -1]
 

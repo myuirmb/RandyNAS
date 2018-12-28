@@ -11,6 +11,7 @@ import MyRouter from './router'
 
 import './assets/scss/index.scss';
 import './assets/scss/mask.scss';
+import './assets/scss/dialog.scss';
 
 const store = createStore(
     reducers,
