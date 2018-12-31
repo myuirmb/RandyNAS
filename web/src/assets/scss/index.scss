@@ -1,8 +1,10 @@
-@import "node_modules/@fortawesome/fontawesome-free/scss";
+//@import "../fontawesome-free/scss/fontawesome.scss";
+@import "../../../node_modules/@fortawesome/fontawesome-free/scss/brands.scss";
+@import "../../../node_modules/@fortawesome/fontawesome-free/scss/fontawesome.scss";
 
 * {
     div {
-        border:1px solid red;
+        border:1px solid rgba(255, 0, 0, 0.11);
     }
 }
 
@@ -10,3 +12,4 @@ html,body{
     padding: 0;
     margin: 0;
 }
+

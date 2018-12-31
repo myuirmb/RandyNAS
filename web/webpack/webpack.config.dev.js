@@ -53,7 +53,7 @@ const config = {
                 //     'css-loader',
                 //     'postcss-loader',
                 //     'sass-loader?sourceMap'
-                // ]
+                // ],
                 use: extracttextwebpackplugin.extract({
                     fallback: 'style-loader',
                     use: ['css-loader', 'sass-loader']

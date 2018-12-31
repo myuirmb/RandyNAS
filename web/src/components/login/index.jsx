@@ -21,7 +21,7 @@ class Login extends React.Component {
         return (
             <div>
                 <div>
-                    <div>username:</div>
+                    <div><i className="fa fa-camera-retro fa-lg"></i>username:</div>
                     <div><input type="text" /></div>
                 </div>
                 <div>
