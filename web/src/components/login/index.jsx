@@ -1,36 +1,42 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { reqAuthLogin } from '../../actions/auth';
+import auth from '../../reducers/auth';
 
+@connect(
+    state => ({ auth: state.get('auth') })
+)
 class Login extends React.Component {
-    static propTypes = {
-    }
-
     constructor() {
         super();
+        this.userLogin = this.userLogin.bind(this);
     }
 
-    componentWillMount() {
-        
+    componentDidMount() {
+        this.refs.un.focus();
     }
 
-    componentWillUpdate(nextProps) {
+    userLogin() {
+        const { dispatch } = this.props;
+        const username = this.refs.un.value.trim(), password = this.refs.pwd.value.trim();
+        if (username !== '' && password !== '') {
+            dispatch(reqAuthLogin({ method: 'post',data: { username, password } }));
+        }
+        else {
 
+        }
     }
 
     render() {
         return (
-            <div>
-                <div>
-                    <div><i className="fa fa-camera-retro fa-lg"></i>username:</div>
-                    <div><input type="text" /></div>
-                </div>
-                <div>
-                    <div>password:</div>
-                    <div><input type="password" /></div>
-                </div>
-                <div>
-                    <input type="button" value="sign up"/>
-                </div>
+            <div className='login'>
+                <div>Username:</div>
+                <div><input type='text' ref='un' placeholder='Enter username' /></div>
+
+                <div>Password:</div>
+                <div><input type='password' ref='pwd' placeholder='Enter password' /></div>
+
+                <div><input type='button' value='Submit' onClick={this.userLogin} /></div>
             </div>
         );
     }

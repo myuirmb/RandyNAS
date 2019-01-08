@@ -1,0 +1,33 @@
+.login{
+    padding: 15px;
+
+    &>div:nth-child(1){
+        padding: 15px 0 0 0;
+        color: rgba(0, 0, 0, 0.65);
+    }
+
+    &>div:nth-child(3){
+        padding: 15px 0 0 0;
+        color: rgba(0, 0, 0, 0.65);
+    }
+
+    &>div:nth-child(5){
+        padding: 15px 0 0 0;
+    }
+
+    & input{
+        width: 60%;
+        height: 28px;
+        border-radius: 5px;
+        border:1px solid rgba(66, 66, 66, 0.35);
+        outline: none;
+        padding: 0 8px;
+        color:rgba(0, 0, 0, 0.75);
+
+        &[type="button"]{
+            width:100px;
+        }
+    }
+
+    // div{border: 1px solid red;}
+}

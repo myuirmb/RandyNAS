@@ -7,11 +7,8 @@ import { Provider } from 'react-redux';
 
 import reducers from './reducers';
 import MyRouter from './router'
-//import Login from './containers/Login';
 
 import './assets/scss/index.scss';
-import './assets/scss/mask.scss';
-import './assets/scss/dialog.scss';
 
 const store = createStore(
     reducers,

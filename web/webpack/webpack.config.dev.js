@@ -58,6 +58,13 @@ const config = {
                     fallback: 'style-loader',
                     use: ['css-loader', 'sass-loader']
                 })
+            },
+            {
+                test: /.(png|gif|jpg|svg|woff2|woff|eot|ttf)$/,
+                use: {
+                    loader: 'file-loader'
+                }
+
             }
         ]
     },

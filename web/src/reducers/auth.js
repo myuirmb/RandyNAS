@@ -1,5 +1,5 @@
 import Immutable from 'immutable';
-import { AUTH_INIT } from '../actions/auth';
+import { AUTH_INIT, AUTH_LOGIN } from '../actions/auth';
 
 const initState = Immutable.Map({
     // sign: false,    //false no need login(gu:true||ut:user)
@@ -10,11 +10,11 @@ const initState = Immutable.Map({
 });
 
 const actions = {
-    // [AUTH_INIT]: (state, action) => {
-    //     const { ut, gu } = action.data.toJS();
-    //     return state.merge(action.data, Immutable.Map({ sign: (!gu && ut === 'guest') }));
-    // }
-    [AUTH_INIT]: (state, action) =>state.merge(action.data)
+    [AUTH_INIT]: (state, action) => state.merge(action.data),
+    [AUTH_LOGIN]: (state, action) => {
+        console.log(action);
+        return state.merge(action.data);
+    }
 };
 
 export default function auth(state = initState, action = {}) {

@@ -1,9 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
 
-import { showLogin, hiddenLogin, showMask, hiddenMask } from '../../actions/main';
 import { reqAuthInit } from '../../actions/auth';
+import { 
+    showMask, 
+    hiddenMask, 
+    showDialog, 
+    hiddenDialog, 
+    showLogin, 
+    hiddenLogin 
+} from '../../actions/main';
 
 import Mask from '../../components/mask';
 import Dialog from '../../components/dialog';
@@ -18,48 +24,46 @@ import Login from '../../components/login';
 class Main extends Component {
     constructor() {
         super();
+        this.closeDialog = this.closeDialog.bind(this);
     }
 
+
+    closeDialog() {
+        const { dispatch } = this.props;
+        dispatch(hiddenLogin());
+        dispatch(hiddenDialog());
+        dispatch(hiddenMask());
+    }
+
+    renderLogin() {
+        const { main } = this.props;
+        return main.get('login') ? <Login /> : null;
+    }
+
+
     componentWillMount() {
-        console.log('---1---');
         const { dispatch } = this.props;
         dispatch(reqAuthInit());
     }
 
-    componentWillUpdate(nextProps) {
-        console.log((new Date()).getTime(), '--2--')
-        const { auth, dispatch } = nextProps;
-        if (!auth.get('gu') && auth.get('ut') === 'guest') {
-            dispatch(showMask());
-            dispatch(showLogin());
-        }
-        else {
-            dispatch(hiddenMask());
-            dispatch(hiddenLogin());
-        }
-    }
+    // componentWillUpdate(nextProps) {
+    // }
 
-    renderLogin(){
-        return <Login />
-    }
 
     render() {
         const { auth, main } = this.props;
-        console.log((new Date()).getTime(), main);
-        {/*<Mask key='3' /><Mask key='4' style={{display:`${main.get('mask')?'block':'none'}`}} />*/ }
         return [
             <div key='0'>{auth.get('ut')}</div>,
             <div key='1'>{auth.get('un')}</div>,
             <div key='2'>{auth.get('ud')}</div>,
-            <div key='3' style={{ height: '1500px' }}>{main.get('login').toString()} | {main.get('mask').toString()}</div>,
+            <div key='3' style={{ height: '1500px' }}>{main.get('dialog').toString()} | {main.get('mask').toString()}</div>,
             <Mask key='4' show={main.get('mask')} />,
-            <Dialog key='5' content={this.renderLogin()} show={main.get('mask')} />
+            <Dialog key='5'
+                title='Login'
+                content={this.renderLogin()}
+                closeDialog={this.closeDialog}
+                show={main.get('dialog')} />
         ];
-        // return (
-        //     <div>
-        //         {main.get('mask')?<Mask key='4' show={main.get('mask')} />:null}
-        //     </div>
-        // );
     }
 }
 

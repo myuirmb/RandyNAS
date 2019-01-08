@@ -1,10 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+// import {Grid, Row, Col} from 'react-bootstrap';
 
 class Dialog extends React.Component {
     static propTypes = {
         show: PropTypes.bool,
-        //content: PropTypes.node
+        title: PropTypes.string,
+        closeDialog: PropTypes.func.isRequired,
+        content: PropTypes.node
     }
 
     constructor() {
@@ -27,7 +30,8 @@ class Dialog extends React.Component {
     draginit(e) {
         //e = e || window.event;
         const d = document;
-        const target = e.target || e.srcElement;
+        //const target = e.target || e.srcElement;
+        const target = e.currentTarget;
         this.setState({
             x: e.clientX,
             y: e.clientY,
@@ -55,23 +59,17 @@ class Dialog extends React.Component {
         d.removeEventListener('mouseup', this.dragrel);
     }
 
-    componentWillMount() {
-
-    }
-
-    componentWillUpdate(nextProps) {
-
-    }
-
     render() {
-        const { content, show } = this.props;
+        const { show, title, content, closeDialog } = this.props;
         const { nx, ny, f } = this.state;
         return (
             <div className='dialog' style={{ left: f ? `${nx}px` : '50%', top: f ? `${ny}px` : '50%', display: `${show ? '' : 'none'}` }}>
-                <div onMouseDown={this.draginit}>
-                    
+                <div onMouseDown={ this.draginit }>
+                    <div><i className="fa fa-barcode fa-lg"></i></div>
+                    <div>{title ? title : '……'}</div>
+                    <div><i className="fa fa-times fa-lg" onClick={ closeDialog }></i></div>
                 </div>
-                <div>{content || null}</div>
+                <div>{ content || null }</div>
             </div>
         );
     }

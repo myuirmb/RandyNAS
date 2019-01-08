@@ -23,42 +23,71 @@ class authhelper extends events {
 
     }
 
-    verify(token, pubkey, prikey) {
+    async verify(sh, nas, privatekey, publickey) {
         const tempid = this.strto(uuidv4());
-        //const decoded=await this.jwtvfy(token,pubkey);
-        let tk;
-        if (decoded) {
-            if (decoded.ut === 'user') {
+        const initinfo = {
+            ud: tempid,
+            un: `guest_${tempid.substr(0, 8)}`,     //user name
+            ut: 'guest',                            //user type(guest,user,root)
+            gu: true,                               //guest true:支持匿名登录，false:不支持匿名登录 
+        };
+        let [info, ck, temp, cf] = [{}, null, {}, -1];
 
-
+        if (nas) {
+            let decoded = null;
+            try {
+                decoded = await this.jwtdecode(this.tostr(nas), publickey);
             }
-            else {
-                tk = {};
-                Object.assign(tk, decoded, { iat: Date.now(), gu: this.conf.vfy.guest });
+            catch (e) {
+                this.logger.error('class auth helper verify feild error: ', e);
             }
-
+            if (decoded) {
+                if (decoded.ut === 'user') {
+                    if (this.conf.vfy.auto > 0) {
+                        let [conn, rows] = [null, null];
+                        if (!sh.conn) conn = await sh.init();
+                        rows = await sh.sqlget({
+                            sql: 'select * from sys_user where id=$id;',
+                            val: { $id: this.tostr(decoded.ud) }
+                        });
+                        if (rows) Object.assign(temp, { ud: this.strto(rows.id), un: rows.username, ut: 'user' })
+                        else cf = 0;
+                    }
+                    else {
+                        cf = 0;
+                    }
+                }
+                else {
+                    Object.assign(temp, decoded);
+                }
+            }
         }
         else {
-            tk = {
-                ud: tempid,
-                un: `g_${tempid}`,
-                ut: 'guest',
-                gu: this.conf.vfy.guest
-            };
+            cf = 1;
         }
 
-        return tk;
+        Object.assign(info, initinfo, temp, { gu: this.conf.vfy.guest });
+        const token = this.strto(jwt.sign(info, privatekey, { algorithm: 'RS256' }));
+        Object.assign(info, { tk: token });
+
+        // if (cf === 0) res.cookie('nas', '', { maxAge: 0, httpOnly: true, 'signed': true });
+        // else if (cf === 1) res.cookie('nas', token, { maxAge: 600000, httpOnly: true, 'signed': true });
+
+        if (cf === 0) ck = { nas: '', attr: { maxAge: 0, httpOnly: true, 'signed': true } };
+        else if (cf === 1) ck = { nas: token, attr: { maxAge: 600000, httpOnly: true, 'signed': true } };
+
+        return { info, ck };
     }
 
     jwtdecode(token, publickey) {
         return new Promise((resolve, reject) => {
             jwt.verify(token, publickey, (err, decoded) => {
                 if (err) {
-                    this.logger.error('class auth helper verify feild error: ', err);
+                    this.logger.error('class auth helper jwtdecode jwt.verify feild error: ', err);
                     reject(null);
                 }
                 else {
-                    this.logger.info('class auth helper verify feild okey:', decoded);
+                    this.logger.info('class auth helper jwtdecode jwt.verify feild okey:', decoded);
                     resolve(decoded);
                 }
             });
