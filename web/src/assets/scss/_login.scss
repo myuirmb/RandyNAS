@@ -1,18 +1,19 @@
 .login{
     padding: 15px;
+    // background: url(../images/m2.jpg) no-repeat 20% 30%;
 
-    &>div:nth-child(1){
+    &>div:nth-child(1),&>div:nth-child(3){
         padding: 15px 0 0 0;
         color: rgba(0, 0, 0, 0.65);
     }
 
-    &>div:nth-child(3){
+    &>div:nth-child(5),&>div:nth-child(6){
         padding: 15px 0 0 0;
-        color: rgba(0, 0, 0, 0.65);
     }
-
-    &>div:nth-child(5){
-        padding: 15px 0 0 0;
+    &>div:nth-child(7){
+        color:red;
+        padding: 10px 0 0 0;
+        font-size: 12px;
     }
 
     & input{
@@ -23,6 +24,11 @@
         outline: none;
         padding: 0 8px;
         color:rgba(0, 0, 0, 0.75);
+
+        &[type="checkbox"]{
+            width:15px;
+            height:15px;
+        }
 
         &[type="button"]{
             width:100px;

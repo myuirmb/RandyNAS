@@ -45,3 +45,13 @@ export function initLogin(res) {
         }
     }
 }
+
+export function didLogin(res) {
+    return dispatch => {
+        if (res.get('ud')) {
+            dispatch(hiddenMask());
+            dispatch(hiddenDialog());
+            dispatch(hiddenLogin());
+        }
+    }
+}

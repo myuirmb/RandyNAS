@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import { reqAuthInit } from '../../actions/auth';
-import { 
-    showMask, 
-    hiddenMask, 
-    showDialog, 
-    hiddenDialog, 
-    showLogin, 
-    hiddenLogin 
+import {
+    showMask,
+    hiddenMask,
+    showDialog,
+    hiddenDialog,
+    showLogin,
+    hiddenLogin
 } from '../../actions/main';
 
 import Mask from '../../components/mask';
@@ -48,7 +48,6 @@ class Main extends Component {
 
     // componentWillUpdate(nextProps) {
     // }
-
 
     render() {
         const { auth, main } = this.props;

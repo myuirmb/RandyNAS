@@ -82,7 +82,6 @@ class sqlitehelper {
      *  sql:'insert into sys_user(id,username,password,utype,stime) values($id,$username,$password,$utype,$stime)',
      *  val:[{ $id: uuidv4(), $username: `chk${i}`, $password: uuidv4(), $utype: 'test', $stime: Date.now() }]
      * }
-     * @param flag {string}
      */
     sqlexec(so, flag) {
         return new Promise((resolve, reject) => {
@@ -111,26 +110,22 @@ class sqlitehelper {
                         this.logger.info(`class method sqlexec[${so.sql.substr(0, 6)}] sql.finalize okey.\r\n`);
                         resolve(res);
                     }
-
-                    //this.emit('sqliteres', res, `sqlexec_${flag}`);
                 });
             });
         });
     }
 
     /**
-     * return {res:row, err:[]}
+     * return {row}
      * @param {object} so(sql object) 
      * {   
      *  sql:'select * from sys_action where id=$id;',
      *  val:{ $id: '20a7f0b2-3df8-4c6e-b495-cceac0ecef22' }
      * }
-     * @param flag {string}
      */
-    sqlget(so, flag) {
+    sqlget(so) {
         return new Promise((resolve, reject) => {
             this.conn.serialize(() => {
-                //let res = { res: 0, err: [] };
                 let sql = this.conn.get(so.sql, so.val, (err, row) => {
                     if (err) {
                         this.logger.error('class method sqlget error:\r\n', err);
@@ -140,33 +135,20 @@ class sqlitehelper {
                         this.logger.info('class method sqlget okey.\r\n');
                         resolve(row);
                     }
-                    //this.emit('sqliteres', { res: row, err: err }, `sqlget_${flag}`);
                 });
             });
         });
     }
 
     /**
-     * return {res:[row,row, ...], err:[]}
+     * return rows[row,row]
      * @param {object} so(sql object) 
      * {   
      *  sql:'select * from sys_action where id<>$id;',
      *  val:{ $id: '20a7f0b2-3df8-4c6e-b495-cceac0ecef22' }
      * }
-     * @param flag {string}
      */
-    // sqlall(so, flag) {
-    //     this.conn.serialize(() => {
-    //         //let res = { res: 0, err: [] };
-    //         let sql = this.conn.all(so.sql, so.val, (err, rows) => {
-    //             if (err) this.logger.error('class method sqlall error:\r\n', err);
-    //             else this.logger.info('class method sqlall okey.\r\n');
-
-    //             this.emit('sqliteres', { res: rows, err: err }, `sqlall_${flag}`);
-    //         });
-    //     });
-    // }
-    sqlall(so, flag) {
+    sqlall(so) {
         return new Promise((resolve, reject) => {
             this.conn.serialize(() => {
                 this.conn.all(so.sql, so.val, (err, rows) => {
@@ -182,6 +164,18 @@ class sqlitehelper {
             });
         });
     }
+
+    // sqlall(so, flag) {
+    //     this.conn.serialize(() => {
+    //         //let res = { res: 0, err: [] };
+    //         let sql = this.conn.all(so.sql, so.val, (err, rows) => {
+    //             if (err) this.logger.error('class method sqlall error:\r\n', err);
+    //             else this.logger.info('class method sqlall okey.\r\n');
+
+    //             this.emit('sqliteres', { res: rows, err: err }, `sqlall_${flag}`);
+    //         });
+    //     });
+    // }
 
     close() {
         return new Promise((resolve, reject) => {

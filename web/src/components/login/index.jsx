@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { reqAuthLogin } from '../../actions/auth';
+import Immutable from 'immutable';
+import { reqAuthLogin, authErrorClear } from '../../actions/auth';
 import auth from '../../reducers/auth';
 
 @connect(
@@ -18,16 +19,22 @@ class Login extends React.Component {
 
     userLogin() {
         const { dispatch } = this.props;
-        const username = this.refs.un.value.trim(), password = this.refs.pwd.value.trim();
+        dispatch(authErrorClear(Immutable.Map({ err: '' })));
+
+        const username = this.refs.un.value.trim(),
+            password = this.refs.pwd.value.trim(),
+            autologin = this.refs.al.checked;
+
         if (username !== '' && password !== '') {
-            dispatch(reqAuthLogin({ method: 'post',data: { username, password } }));
+            dispatch(reqAuthLogin({ method: 'post', data: { username, password, autologin } }));
         }
         else {
-
+            dispatch(authErrorClear(Immutable.Map({ err: 'Pls enter your Username and Password...' })));
         }
     }
 
     render() {
+        const { auth } = this.props;
         return (
             <div className='login'>
                 <div>Username:</div>
@@ -35,8 +42,12 @@ class Login extends React.Component {
 
                 <div>Password:</div>
                 <div><input type='password' ref='pwd' placeholder='Enter password' /></div>
-
+                <div>
+                    <input id='autologin' type='checkbox' ref='al'/>
+                    <label htmlFor='autologin'>Automatic login within two weeks</label>
+                </div>
                 <div><input type='button' value='Submit' onClick={this.userLogin} /></div>
+                <div>{auth.get('err')}</div>
             </div>
         );
     }

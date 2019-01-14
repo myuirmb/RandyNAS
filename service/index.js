@@ -49,71 +49,51 @@ const cp = cookieparser('f8926d84-32c4-41a2-ae3e-d5b81bf9a063');
 
 //main 主页
 app.get('/main', jp, cp, async (req, res) => {
-    let [conn, rows] = [null, null];
+    let conn = null, row = null;
     if (!sh.conn) conn = await sh.init();
-    row = await ah.verify(sh);
+    row = await ah.login(sh, 'chk9', '123', privatekey);
     logger.info(row);
     res.send(row);
     res.end()
 });
 
 app.get('/init', jp, cp, async (req, res) => {
-    const { nas } = req.signedCookies;
-    // const tempid = ah.strto(uuidv4());
-    // const initinfo = {
-    //     ud: tempid,
-    //     un: `guest_${tempid.substr(0, 8)}`,     //user name
-    //     ut: 'guest',                            //user type(guest,user,root)
-    //     gu: true,                               //guest true:支持匿名登录，false:不支持匿名登录 
-    // };
-    // let [info, temp, cf] = [{}, {}, -1]
-
-    // if (nas) {
-    //     let decoded = null;
-    //     try { decoded = await ah.jwtdecode(ah.tostr(nas), publickey); } catch (e) { }
-    //     if (decoded) {
-    //         if (decoded.ut === 'user') {
-    //             if (conf.vfy.auto > 0) {
-    //                 let [conn, rows] = [null, null];
-    //                 if (!sh.conn) conn = await sh.init();
-    //                 rows = await sh.sqlget({
-    //                     sql: 'select * from sys_user where id=$id;',
-    //                     val: { $id: ah.tostr(decoded.ud) }
-    //                 });
-    //                 if (rows) Object.assign(temp, { ud: ah.strto(rows.id), un: rows.username, ut: 'user' })
-    //                 else cf = 0;
-    //             }
-    //             else {
-    //                 cf = 0;
-    //             }
-    //         }
-    //         else {
-    //             Object.assign(temp, decoded);
-    //         }
-    //     }
-    // }
-    // else {
-    //     cf = 1;
-    // }
-
-    // Object.assign(info, initinfo, temp, { gu: conf.vfy.guest });
-    // const token = ah.strto(jwt.sign(info, privatekey, { algorithm: 'RS256' }));
-    // Object.assign(info, { tk: token });
-
-    // if (cf === 0) res.cookie('nas', '', { maxAge: 0, httpOnly: true, 'signed': true });
-    // else if (cf === 1) res.cookie('nas', token, { maxAge: 600000, httpOnly: true, 'signed': true });
-
-    const resault = await ah.verify(sh, nas, privatekey, publickey);
-    //logger.info(resault);
+    const { nas, log } = req.signedCookies;
+    let resault = null;
+    try {
+        resault = await ah.init(sh, nas, log, privatekey, publickey);
+    }
+    catch (e) {
+        logger.error('init in error:', e);
+    }
     res.setHeader('Content-Type', 'text/plain');
-    if(resault.ck)res.cookie('nas', resault.ck.nas, resault.ck.attr);
-    res.send(`{"code":200,"data":${JSON.stringify(resault.info)},"msg":"ok"}`);
+    if (resault.info) {
+        if (resault.ck) res.cookie(resault.ck.key, resault.ck.val, resault.ck.attr);
+        res.send(`{"code":200,"data":${JSON.stringify(resault.info)},"msg":"ok"}`);
+    }
+    else {
+        res.send(`{"code":200,"data":{"err":"init failing..."},"msg":"ok"}`);
+    }
     res.end();
 });
 
 app.post('/login', jp, cp, async (req, res) => {
-    logger.info(req.headers, req.body);
-    res.send(`{"code":200,"data":{"ud":"a8926d84-32c4-41a2-ae3e-d5b81bf9a063","un":"${req.body.username}","ut":"user","gu":true},"msg":"ok"}`);
+    let resault = null;
+    try {
+        resault = await ah.login(sh, privatekey, req.body.username, req.body.password, req.body.autologin);
+    }
+    catch (e) {
+        logger.error('login in error:', e);
+    }
+    res.setHeader('Content-Type', 'text/plain');
+    if (resault.info) {
+        res.cookie(resault.ck.nas.key, resault.ck.nas.val, resault.ck.nas.attr);
+        res.cookie(resault.ck.log.key, resault.ck.log.val, resault.ck.log.attr);
+        res.send(`{"code":200,"data":${JSON.stringify(resault.info)},"msg":"ok"}`);
+    }
+    else {
+        res.send(`{"code":200,"data":{"err":"login failing..."},"msg":"ok"}`);
+    }
     res.end();
 });
 
