@@ -15,7 +15,6 @@ class MyRouter extends Component {
             <BrowserRouter>
                 <Switch>{/*<div style={{border:'1px solid red'}}>*/}
                     <Route path='/' exact component={Main}></Route>
-                    
                 </Switch>{/*</div>*/}
             </BrowserRouter>
         );

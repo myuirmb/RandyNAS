@@ -45,19 +45,22 @@ const cp = cookieparser('f8926d84-32c4-41a2-ae3e-d5b81bf9a063');
 //const urlp = bodyparser.urlencoded({ extended: false });
 
 
-
+app.disable('x-powered-by');
 
 //main 主页
-app.get('/main', jp, cp, async (req, res) => {
-    let conn = null, row = null;
-    if (!sh.conn) conn = await sh.init();
-    row = await ah.login(sh, 'chk9', '123', privatekey);
-    logger.info(row);
-    res.send(row);
-    res.end()
+app.get('/', jp, cp, async (req, res) => {
+    const allfiles = await fh.readdirsync(
+        sh,
+        'D:/soft/DbVisualizer',
+        ah.strto(ah.strto(conf.appid)),
+        '0'
+    );
+    res.setHeader('Content-Type', 'text/plain');
+    res.send(allfiles);
+    res.end();
 });
 
-app.get('/init', jp, cp, async (req, res) => {
+app.post('/init', jp, cp, async (req, res) => {
     const { nas, log } = req.signedCookies;
     let resault = null;
     try {
@@ -97,57 +100,25 @@ app.post('/login', jp, cp, async (req, res) => {
     res.end();
 });
 
-app.get('/', jp, cp, async (req, res) => {
-
-    logger.info(req.url, req.headers);
-
-    let [conn, rows] = [null, null];
-    if (!sh.conn) conn = await sh.init();
-    rows = await sh.sqlall({
-        sql: 'select * from sys_user where id<>$id;',
-        val: { $id: 'd56e6371-a2fa-4533-9584-ac3840530ce9' }
-    });
-
-    // sh.test();
-
-    //fh.traverse('D:\\Randy\\nase\\randynas\\service\\');
-    //fh.traverse('D:\\Randy\\nase\\MongoDB\\');
-    //let lists= fh.getdir('D:\\Randy\\nase\\MongoDB\\');
-
-    // let textx=jwt.sign({test:'hello jwt'},'good bye', (err,token)=>{
-    //     logger.info(token,'--');
-    // });
-
-    // let textx=jwt.sign({ foo: 'bar' }, 'shhhhh');
-    // logger.info(textx);
-    logger.info('----start---->');
-    const payload = {
-        uid: 'e605994b-9989-4f4a-901d-00cdf3adfec7',
-        test: '1',
-        ain: 'dafa'
-    };
-
-    const privatekey = await fh.readfilep('./config/private.key');
-    const publickey = await fh.readfilep('./config/public.key');
-    const token = jwt.sign(payload, privatekey, { algorithm: 'RS256' });
-
-    logger.info(privatekey, token);
-
-    jwt.verify(token, publickey, (err, decoded) => {
-        if (err) {
-            logger.error(`verify feild error: ${err}`);
-        }
-        else {
-            logger.info(decoded);
-        }
-    });
-
-    logger.info('----end---->');
-
+app.post('/menu', jp, cp, async (req, res) => {
+    let resault = null, fid = ah.strto(ah.strto(conf.appid));
+    if (req.body.pid) fid = req.body.pid;
+    try {
+        resault = await fh.getmenu(sh, fid);
+    }
+    catch (e) {
+        logger.error('login in error:', e);
+    }
     res.setHeader('Content-Type', 'text/plain');
-    //res.setHeader('Authorization', `Bearer ${token}`)
-    res.send(`${conn} --> ${JSON.stringify(rows)}`);
-    //res.send(`{"data":"hello world","token":"${token}"}`);
+    if (resault)
+        res.send(`{"code":200,"data":${JSON.stringify({ menu: resault })},"msg":"ok"}`);
+    else
+        res.send(`{"code":200,"data":{"err":"get menu err..."},"msg":"ok"}`)
     res.end();
+});
 
+app.all('/*', (req, res) => {
+    res.setHeader('Content-Type', 'text/json');
+    res.send('Nginx 1.1.6');
+    res.end();
 });

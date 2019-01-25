@@ -3,8 +3,8 @@ const config = {
         url: 'http://localhost:13579',
         interface: {
             init:'/init',
-            login: '/login'
-
+            login: '/login',
+            menu:'/menu'
         }
     }
 };

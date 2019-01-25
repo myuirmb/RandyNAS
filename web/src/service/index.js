@@ -13,7 +13,7 @@ const responseTypes = {
 };
 
 const cfg = {
-    method: 'get',
+    method: 'post',
     baseUR: conf.service.url,
     headers: { 'Content-Type': contentTypes.json },
     responseType: responseTypes.json

@@ -8,12 +8,15 @@ import {
     showDialog,
     hiddenDialog,
     showLogin,
-    hiddenLogin
+    hiddenLogin,
+    reqMenuInit
 } from '../../actions/main';
 
 import Mask from '../../components/mask';
 import Dialog from '../../components/dialog';
 import Login from '../../components/login';
+import MainFlex from '../../components/layout';
+import Menu from '../../components/menu';
 
 @connect(
     state => ({
@@ -44,18 +47,27 @@ class Main extends Component {
     componentWillMount() {
         const { dispatch } = this.props;
         dispatch(reqAuthInit());
+        dispatch(reqMenuInit());
     }
 
     // componentWillUpdate(nextProps) {
     // }
 
+    menurender() {
+        const { main } = this.props;
+        console.log(main.get('menu'));
+        return <Menu nodelist={main.get('menu')} />;
+    }
+
+    loginrender() {
+        return <Login />;
+    }
+
     render() {
         const { auth, main } = this.props;
+        console.log(main.get('menu'));
         return [
-            <div key='0'>{auth.get('ut')}</div>,
-            <div key='1'>{auth.get('un')}</div>,
-            <div key='2'>{auth.get('ud')}</div>,
-            <div key='3' style={{ height: '1500px' }}>{main.get('dialog').toString()} | {main.get('mask').toString()}</div>,
+            <MainFlex key='1' menubar={this.menurender()} />,
             <Mask key='4' show={main.get('mask')} />,
             <Dialog key='5'
                 title='Login'

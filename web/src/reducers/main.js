@@ -5,7 +5,8 @@ import {
     SHOW_HIDDEN_DIALOG_FALSE,
     SHOW_HIDDEN_DIALOG_TRUE,
     SHOW_HIDDEN_LOGIN_FALSE,
-    SHOW_HIDDEN_LOGIN_TRUE
+    SHOW_HIDDEN_LOGIN_TRUE,
+    MENU_INIT
 } from '../actions/main';
 
 const initState = Immutable.Map({
@@ -20,7 +21,8 @@ const actions = {
     [SHOW_HIDDEN_DIALOG_FALSE]: state => state.set('dialog', false),
     [SHOW_HIDDEN_DIALOG_TRUE]: state => state.set('dialog', true),
     [SHOW_HIDDEN_LOGIN_FALSE]: state => state.set('login', false),
-    [SHOW_HIDDEN_LOGIN_TRUE]: state => state.set('login', true)
+    [SHOW_HIDDEN_LOGIN_TRUE]: state => state.set('login', true),
+    [MENU_INIT]: (state, action) => state.merge(action.data),
 };
 
 export default function auth(state = initState, action = {}) {

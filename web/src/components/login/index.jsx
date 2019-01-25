@@ -23,10 +23,10 @@ class Login extends React.Component {
 
         const username = this.refs.un.value.trim(),
             password = this.refs.pwd.value.trim(),
-            autologin = this.refs.al.checked;
+            autologin = this.refs.al ? this.refs.al.checked : false;
 
         if (username !== '' && password !== '') {
-            dispatch(reqAuthLogin({ method: 'post', data: { username, password, autologin } }));
+            dispatch(reqAuthLogin({ data: { username, password, autologin } }));
         }
         else {
             dispatch(authErrorClear(Immutable.Map({ err: 'Pls enter your Username and Password...' })));
@@ -42,12 +42,15 @@ class Login extends React.Component {
 
                 <div>Password:</div>
                 <div><input type='password' ref='pwd' placeholder='Enter password' /></div>
-                <div>
-                    <input id='autologin' type='checkbox' ref='al'/>
-                    <label htmlFor='autologin'>Automatic login within two weeks</label>
-                </div>
+                {(auth.get('au') && auth.get('au') > 0) ?
+                    <div>
+                        <input id='autologin' type='checkbox' ref='al' />
+                        <label htmlFor='autologin'>Automatic login within {auth.get('au')} days</label>
+                    </div>
+                    : null
+                }
                 <div><input type='button' value='Submit' onClick={this.userLogin} /></div>
-                <div>{auth.get('err')}</div>
+                <div className='altmsg'>{auth.get('err')}</div>
             </div>
         );
     }

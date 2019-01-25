@@ -14,7 +14,7 @@ const config = {
 
     vfy: {
         guest: false,
-        auto: 0,    //14*24*60*60
+        auto: 14 * 24 * 60 * 60,    //14*24*60*60
         rsa: {
             // publickey: './config/public.key',
             // privatekey: './config/private.key'
@@ -28,9 +28,9 @@ const config = {
         // s: ['e', 'a', 'd', 'f', 'c', 'b'],
         n: ['3', '2', '7', '6', '9', '4', '5', '8', '1', '0', 'e', 'a', 'd', 'f', 'c', 'b'],
         a: '39c57ce4-3be9-4e8a-94a8-b86d3020dd36',
-        m5:'51072f5f-941e-4478-9139-33a67162dcf5',
-        s1:'d8ddd1f1-00f6-442b-b88c-e122918835f5',
-        s5:'e2ff1f08-383b-438b-b14b-607e2e28bbb1'
+        m5: '51072f5f-941e-4478-9139-33a67162dcf5',
+        s1: 'd8ddd1f1-00f6-442b-b88c-e122918835f5',
+        s5: 'e2ff1f08-383b-438b-b14b-607e2e28bbb1'
     }
 };
 

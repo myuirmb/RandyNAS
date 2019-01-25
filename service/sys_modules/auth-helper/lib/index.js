@@ -6,8 +6,6 @@ const log4js = require('log4js');
 const uuidv4 = require('uuid/v4');
 
 const config = require('../../../config');
-const sqlitehelper = require('../../sqlite3-helper');
-const fileshelper = require('../../files-helper');
 
 class authhelper extends events {
     constructor() {
@@ -25,6 +23,7 @@ class authhelper extends events {
             un: `guest_${tempid.substr(0, 8)}`,     //user name
             ut: 'guest',                            //user type(guest,user,root)
             gu: true,                               //guest true:false
+            au: Math.ceil(this.conf.vfy.auto / (24 * 60 * 60))
         };
         let info = {}, ck = null, temp = {}, cf = '';
 

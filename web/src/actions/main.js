@@ -1,3 +1,5 @@
+import service from '../service';
+
 export const SHOW_HIDDEN_MASK_TRUE = 'SHOW_HIDDEN_MASK_TRUE';
 export const SHOW_HIDDEN_MASK_FALSE = 'SHOW_HIDDEN_MASK_FALSE';
 
@@ -6,6 +8,8 @@ export const SHOW_HIDDEN_DIALOG_FALSE = 'SHOW_HIDDEN_DIALOG_FALSE';
 
 export const SHOW_HIDDEN_LOGIN_TRUE = 'SHOW_HIDDEN_LOGIN_TRUE';
 export const SHOW_HIDDEN_LOGIN_FALSE = 'SHOW_HIDDEN_LOGIN_FALSE';
+
+export const MENU_INIT='MENU_INIT';
 
 export function showMask() {
     return { type: SHOW_HIDDEN_MASK_TRUE };
@@ -29,6 +33,19 @@ export function showLogin() {
 
 export function hiddenLogin() {
     return { type: SHOW_HIDDEN_LOGIN_FALSE };
+}
+
+export function menuInit(data){
+    return { type: MENU_INIT, data };
+}
+
+export function reqMenuInit() {
+    return (dispatch, getState) => {
+        const token = getState().get('auth').get('tk');
+        service('menu', token).then(res => {
+            dispatch(menuInit(res));
+        });
+    }
 }
 
 export function initLogin(res) {

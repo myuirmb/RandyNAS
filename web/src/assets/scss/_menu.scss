@@ -1,0 +1,57 @@
+.content_dtree{
+    padding: 10px 0 10px 10px;
+}
+.dtree {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #666;
+    white-space: nowrap;
+
+    & img {
+        border: 0px;
+        // width: 22.8px;
+        // height: 21.6px;
+        vertical-align: middle;
+    }
+    & span {
+        color: #333;
+        text-decoration: none;
+    }
+    & span.node, & span.nodeSel {
+        white-space: nowrap;
+        padding: 1px 2px 1px 2px;
+        cursor: pointer;
+    }
+    & span.node:hover, & span.nodeSel:hover {
+        color: #333;
+        text-decoration: underline;
+    }
+    & span.nodeSel {
+        background-color: #c0d2ec;
+    }
+    & .clip {
+        overflow: hidden;
+    }
+}
+// .dtree img {
+// 	border: 0px;
+// 	vertical-align: middle;
+// }
+// .dtree a {
+// 	color: #333;
+// 	text-decoration: none;
+// }
+// .dtree a.node, .dtree a.nodeSel {
+// 	white-space: nowrap;
+// 	padding: 1px 2px 1px 2px;
+// }
+// .dtree a.node:hover, .dtree a.nodeSel:hover {
+// 	color: #333;
+// 	text-decoration: underline;
+// }
+// .dtree a.nodeSel {
+// 	background-color: #c0d2ec;
+// }
+// .dtree .clip {
+// 	overflow: hidden;
+// }
