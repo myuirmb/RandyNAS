@@ -49,14 +49,16 @@ app.disable('x-powered-by');
 
 //main 主页
 app.get('/', jp, cp, async (req, res) => {
-    const allfiles = await fh.readdirsync(
-        sh,
-        'D:/soft/DbVisualizer',
-        ah.strto(ah.strto(conf.appid)),
-        '0'
-    );
-    res.setHeader('Content-Type', 'text/plain');
-    res.send(allfiles);
+    // const allfiles = await fh.readdirsync(
+    //     sh,
+    //     'D:/Randy/GWC',
+    //     ah.strto(ah.strto(conf.appid)),
+    //     '0'
+    // );
+    // res.setHeader('Content-Type', 'text/plain');
+    // res.send(allfiles);
+    // res.end();
+    logger.info('----------------------------------------------------------->', req);
     res.end();
 });
 
@@ -101,19 +103,18 @@ app.post('/login', jp, cp, async (req, res) => {
 });
 
 app.post('/menu', jp, cp, async (req, res) => {
-    let resault = null, fid = ah.strto(ah.strto(conf.appid));
-    if (req.body.pid) fid = req.body.pid;
+    let resault = { menu: null }, pid = ah.strto(ah.strto(conf.appid));
     try {
-        resault = await fh.getmenu(sh, fid);
+        logger.info(req.body.pid);
+        if (req.body.pid) pid = req.body.pid;
+        else resault.cid = pid;
+        resault.menu = { [pid]: await fh.getmenu(sh, pid) };
     }
     catch (e) {
         logger.error('login in error:', e);
     }
     res.setHeader('Content-Type', 'text/plain');
-    if (resault)
-        res.send(`{"code":200,"data":${JSON.stringify({ menu: resault })},"msg":"ok"}`);
-    else
-        res.send(`{"code":200,"data":{"err":"get menu err..."},"msg":"ok"}`)
+    res.send(`{"code":200,"data":${JSON.stringify(resault)},"msg":"ok"}`);
     res.end();
 });
 

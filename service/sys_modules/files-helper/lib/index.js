@@ -109,7 +109,7 @@ class fileshelper extends events {
         let conn=null,rows=null;
         if(!sh.conn)conn=await sh.init();
         rows=await sh.sqlall({
-            sql: 'select id,fid,fname,ftype from sys_list where fid=$fid',
+            sql: 'select id,fid,fname,ftype from sys_list where fid=$fid order by ftype desc,fname asc;',
             val: { $fid:fid }
         });
         return rows;

@@ -42,8 +42,13 @@ const service = (url, token, obj = {}) => {
     );
 
     return axios(req).then(res => {
-        if (res.data.code && res.data.code === 200) return Immutable.fromJS(res.data.data);
-        else return Promise.reject(res);
+        if (res.data.code && res.data.code === 200) {
+            // return res.data.data
+            return Immutable.fromJS(res.data.data);
+        }
+        else{ 
+            return Promise.reject(res);
+        }
     }).catch(e => {
         throw e
     });

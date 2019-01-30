@@ -44,7 +44,7 @@ function dTree(objName, context) {
 
 		folderLinks: true,
 
-		useSelection: true,
+		useSelection: false,
 
 		useCookies: false,
 
@@ -253,7 +253,7 @@ dTree.prototype.node = function (node, nodeId) {
 		// if (this.config.useSelection && ((node._hc && this.config.folderLinks) || !node._hc))
 
 		// 	str += ' onclick="javascript: ' + this.obj + '.s(' + nodeId + ',\''+node.id+'\');"';
-		str += ' onclick="' + this.obj + '.s(' + nodeId + ',\'' + node.id + '\');"'
+		str += ' onclick="' + this.obj + '.s(' + nodeId + ');"'
 
 		str += '>';
 
@@ -355,12 +355,12 @@ dTree.prototype.getSelected = function () {
 
 // Highlights the selected node
 
-dTree.prototype.s = function (id, nid) {
-	this.context.selectedNode(this.obj, id, nid);
+dTree.prototype.s = function (id) {
+	var cn = this.aNodes[id];
+
+	this.context.selectedNode(this.obj, id, cn.id);
 
 	if (!this.config.useSelection) return;
-
-	var cn = this.aNodes[id];
 
 	if (cn._hc && !this.config.folderLinks) return;
 
@@ -393,6 +393,8 @@ dTree.prototype.s = function (id, nid) {
 dTree.prototype.o = function (id) {
 
 	var cn = this.aNodes[id];
+
+	//this.context.openNode(this.obj, id, cn.id);
 
 	this.nodeStatus(!cn._io, id, cn._ls);
 
