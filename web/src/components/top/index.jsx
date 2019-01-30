@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import dTree from '../menu/dtree';
 
 class TopBar extends Component {
     static propTypes = {

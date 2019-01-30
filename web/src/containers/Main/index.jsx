@@ -76,7 +76,7 @@ class Main extends Component {
         if (main.get('cid')) {
             let pid = this.state.pid;
             if (pid === 0) pid = main.get('cid');
-            return <Content nodelist={main.getIn(['menu', pid])} />;
+            return <Content nodelist={main.getIn(['menu', pid])} gm={this.getMeun} />;
         }
         else {
             return <div />;

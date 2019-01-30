@@ -11,6 +11,9 @@
         flex: 0 0 80px;
         height: 80px;
         margin: 20px 0 0 10px;
+
+        cursor: pointer;
+
         &>div:first-child{
             height: 50px;
             text-align: center;
