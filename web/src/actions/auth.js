@@ -1,4 +1,5 @@
-import service from '../service';
+import Request from '../service/request';
+import Config from '../config';
 import { initLogin, didLogin } from './main';
 
 export const AUTH_INIT = 'AUTH_INIT';
@@ -19,20 +20,26 @@ export function authErrorClear(data) {
 
 export function reqAuthInit() {
     return (dispatch, getState) => {
-        const token = getState().get('auth').get('tk');
-        service('init', token).then(res => {
-            dispatch(authInit(res));
-            dispatch(initLogin(res));
+        const conf = new Config();
+        const opt = conf.init('init', getState);
+        const req = new Request({ ...opt });
+        req.on('success', (res, status, xhr) => {
+            dispatch(authInit(res.data));
+            dispatch(initLogin(res.data));
         });
+        req.send();
     }
 }
 
-export function reqAuthLogin(user) {
+export function reqAuthLogin(params) {
     return (dispatch, getState) => {
-        const token = getState().get('auth').get('tk');
-        service('login', token, user).then(res => {
-            dispatch(authLogin(res));
-            dispatch(didLogin(res));
+        const conf = new Config();
+        const opt = conf.init('login', getState);
+        const req = new Request({ ...opt, ...params });
+        req.on('success', (res, status, xhr) => {
+            dispatch(authLogin(res.data));
+            dispatch(didLogin(res.data));
         });
+        req.send();
     }
 }

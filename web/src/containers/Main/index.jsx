@@ -7,18 +7,23 @@ import {
     hiddenMask,
     showDialog,
     hiddenDialog,
+    showType,
     showLogin,
     hiddenLogin,
-    reqMenuInit
+    reqMenuInit,
+    reqGetFiles,
+    reqDownloadFile
 } from '../../actions/main';
 
-import Mask from '../../components/mask';
-import Dialog from '../../components/dialog';
-import Login from '../../components/login';
 import MainFlex from '../../components/layout';
 import TopBar from '../../components/top';
 import Menu from '../../components/menu';
 import Content from '../../components/content';
+
+import Progress from '../../components/progress';
+import Mask from '../../components/mask';
+import Dialog from '../../components/dialog';
+import Login from '../../components/login';
 
 @connect(
     state => ({
@@ -31,8 +36,12 @@ class Main extends Component {
         super();
         this.closeDialog = this.closeDialog.bind(this);
         this.getMeun = this.getMeun.bind(this);
+        this.setShowType = this.setShowType.bind(this);
+        this.getFiles = this.getFiles.bind(this);
+        this.downloadFile = this.downloadFile.bind(this);
         this.state = {
-            pid: 0
+            pid: 0,
+            search: false
         }
     }
 
@@ -51,7 +60,10 @@ class Main extends Component {
 
     getMeun(pid) {
         const { main, dispatch } = this.props;
-        this.setState({ pid });
+        this.setState({
+            pid,
+            search: false
+        });
         if (main.get('menu').get(pid)) {
         }
         else {
@@ -59,16 +71,39 @@ class Main extends Component {
         }
     }
 
+    getFiles(str) {
+        const { dispatch } = this.props;
+        this.setState({ search: true });
+        dispatch(reqGetFiles({ data: { str } }));
+    }
+
+    downloadFile(id, fname, ftype, fsize) {
+        const { dispatch } = this.props;
+        dispatch(reqDownloadFile({ data: { id, fname, ftype, fsize } }));
+    }
+
+    setShowType(types) {
+        const { dispatch } = this.props;
+        dispatch(showType(types));
+    }
+
     topbarRender() {
         const { main } = this.props;
         let pid = this.state.pid;
         if (pid === 0) pid = main.get('cid');
-        return <TopBar cid={pid} gm={this.getMeun} />
+        return <TopBar
+            cid={main.get('cid')}
+            rn={main.get('rn')}
+            pid={pid}
+            gf={this.getFiles}
+            gm={this.getMeun}
+            sst={this.setShowType}
+        />;
     }
 
     menuRender() {
         const { main } = this.props;
-        return <Menu cid={main.get('cid')} nodelist={main.get('menu')} gm={this.getMeun} />;
+        return <Menu cid={main.get('cid')} rn={main.get('rn')} nodelist={main.get('menu')} gm={this.getMeun} />;
     }
 
     contentRender() {
@@ -76,10 +111,21 @@ class Main extends Component {
         if (main.get('cid')) {
             let pid = this.state.pid;
             if (pid === 0) pid = main.get('cid');
-            return <Content nodelist={main.getIn(['menu', pid])} gm={this.getMeun} />;
+
+            let nodelist = main.getIn(['menu', pid]);
+            if (this.state.search) {
+                console.log('---------->', main.get('search'));
+                nodelist = main.get('search');
+            }
+            return <Content
+                showtype={main.get('showtype')}
+                nodelist={nodelist}
+                gm={this.getMeun}
+                dlf={this.downloadFile}
+            />;
         }
         else {
-            return <div />;
+            return null;
         }
     }
 
@@ -100,7 +146,8 @@ class Main extends Component {
                 title='Login'
                 content={this.loginRender()}
                 closeDialog={this.closeDialog}
-                show={main.get('dialog')} />
+                show={main.get('dialog')} />,
+            <Progress key='6' prog={main.get('progress')} />
         ];
     }
 }

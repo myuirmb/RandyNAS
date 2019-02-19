@@ -1,4 +1,53 @@
-.files_content{
+.content_list{
+    padding: 10px 0;
+    & div{
+        border:0px solid red;
+    }
+
+    &>div:nth-of-type(even){
+        background: #f9f9f9;
+    }
+
+    & .files_list{
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: flex-start;
+        border-bottom: 1px solid #f9f9f9;
+
+        &>div:first-child{
+            flex: 0 0 50px;
+            height: 30px;
+            padding: 5px 0;
+            text-align: center;
+            cursor: pointer;
+
+            &>img{
+                width: 30px;
+                height: 30px;
+            }
+        }
+        &>div:nth-child(2){
+            flex: 1 1 auto;
+            height: 40px;
+            line-height: 40px;
+            overflow: hidden;
+            text-overflow:ellipsis;
+            white-space: nowrap;
+        }
+        &>div:nth-child(3){
+            flex: 0 0 120px;
+            height: 40px;
+            line-height: 40px;
+        }
+        &>div:last-child{
+            flex: 0 0 160px;
+            height: 40px;
+            line-height: 40px;
+        }
+    }
+}
+
+.content_block{
     display: flex;
     flex-flow: row wrap;
     justify-content: flex-start;
@@ -33,7 +82,7 @@
             overflow: hidden;
             text-overflow:ellipsis;
             white-space: nowrap;
-            padding: 0 5px 0 5px;
+            padding: 0 5px;
             cursor: default;
         }
     }

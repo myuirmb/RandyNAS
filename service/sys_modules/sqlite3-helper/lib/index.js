@@ -96,7 +96,7 @@ class sqlitehelper {
                         }
                         else {
                             res.res += 1;
-                            this.logger.info(`class method sqlexec[${so.sql.substr(0, 6)}] sql.run okey.\r\n`, so.val[i], '\r\n');
+                            //this.logger.info(`class method sqlexec[${so.sql.substr(0, 6)}] sql.run okey.\r\n`, so.val[i], '\r\n');
                         }
                     });
                 }

@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 
 class Content extends Component {
     static propTypes = {
+        showtype: PropTypes.string,
         nodelist: PropTypes.object,
-        gm: PropTypes.func
+        gm: PropTypes.func,
+        dlf: PropTypes.func
     }
     constructor() {
         super();
@@ -31,90 +33,192 @@ class Content extends Component {
         }
     }
 
-    nodeClick(id, ftype) {
-        const { gm } = this.props;
+
+    formatDate(timestamp) {
+        const d = new Date(timestamp);
+        const year = d.getFullYear(),
+            month = (d.getMonth() + 1).toString().padStart(2, '0'),
+            date = (d.getDate()).toString().padStart(2, '0'),
+            hour = (d.getHours()).toString().padStart(2, '0'),
+            minute = (d.getMinutes()).toString().padStart(2, '0'),
+            second = (d.getSeconds()).toString().padStart(2, '0');
+        return `${year}-${month}-${date} ${hour}:${minute}:${second}`;
+    }
+
+    nodeClick(id, fname, ftype, fsize) {
+        const { gm, dlf } = this.props;
         if (ftype === 'folder') {
             gm(id);
         }
         else {
             console.log('------content--ondeclick---id----ftype------>', id, ftype);
+            dlf(id, fname, ftype, fsize);
         }
     }
 
     render() {
-        const { nodelist } = this.props;
-        let nodes = [];
+        const { showtype, nodelist } = this.props;
+        let nodes = [], theme = this.icon.a;
         if (nodelist) {
-            for (let i = 0, len = nodelist.size; i < len; i++) {
-                let icon = this.icon.a.other;
-                switch (nodelist.get(i).get('ftype')) {
-                    case 'folder':
-                        icon = this.icon.a.folder;
-                        break;
-                    case '.mp3':
-                    case '.wav':
-                        icon = this.icon.a.music;
-                        break;
-                    case '.mp4':
-                    case '.rmvb':
-                    case '.3gp':
-                    case '.mov':
-                    case '.avi':
-                        icon = this.icon.a.video;
-                        break;
-                    case '.jpg':
-                    case '.gif':
-                    case '.bmp':
-                        icon = this.icon.a.jpg;
-                        break;
-                    case '.png':
-                        icon = this.icon.a.png;
-                        break;
-                    case '.docx':
-                    case '.doc':
-                        icon = this.icon.a.doc;
-                        break;
-                    case '.txt':
-                        icon = this.icon.a.txt;
-                        break;
-                    case '.rar':
-                    case '.zip':
-                        icon = this.icon.a.zip;
-                        break;
-                    case '.conf':
-                    case '.cfg':
-                    case '.config':
-                        icon = this.icon.a.config;
-                        break;
-                    case '.xml':
-                        icon = this.icon.a.xml;
-                        break;
-                    case '.html':
-                        icon = this.icon.a.html;
-                        break;
-                    case '.scss':
-                    case '.less':
-                    case '.css':
-                        icon = this.icon.a.css;
-                        break;
-                    default:
-                        icon = this.icon.a.other;
+            if (showtype === 'block') {
+                for (let i = 0, len = nodelist.size; i < len; i++) {
+                    let icon = theme.other;
+                    switch (nodelist.get(i).get('ftype')) {
+                        case 'folder':
+                            icon = theme.folder;
+                            break;
+                        case '.mp3':
+                        case '.wav':
+                            icon = theme.music;
+                            break;
+                        case '.mp4':
+                        case '.rmvb':
+                        case '.3gp':
+                        case '.mov':
+                        case '.avi':
+                            icon = theme.video;
+                            break;
+                        case '.jpg':
+                        case '.gif':
+                        case '.bmp':
+                            icon = theme.jpg;
+                            break;
+                        case '.png':
+                            icon = theme.png;
+                            break;
+                        case '.docx':
+                        case '.doc':
+                            icon = theme.doc;
+                            break;
+                        case '.txt':
+                            icon = theme.txt;
+                            break;
+                        case '.rar':
+                        case '.zip':
+                            icon = theme.zip;
+                            break;
+                        case '.conf':
+                        case '.cfg':
+                        case '.config':
+                            icon = theme.config;
+                            break;
+                        case '.xml':
+                            icon = theme.xml;
+                            break;
+                        case '.html':
+                            icon = theme.html;
+                            break;
+                        case '.scss':
+                        case '.less':
+                        case '.css':
+                            icon = theme.css;
+                            break;
+                        default:
+                            icon = theme.other;
+                    }
+                    nodes.push(<div
+                        key={i}
+                        className='files_icon'
+                        title={nodelist.get(i).get('fname')}
+                        onClick={this.nodeClick.bind(
+                            this,
+                            nodelist.get(i).get('id'),
+                            nodelist.get(i).get('fname'),
+                            nodelist.get(i).get('ftype'),
+                            nodelist.get(i).get('fsize')
+                        )}
+                    >
+                        <div><img src={icon} /></div>
+                        <div>{nodelist.get(i).get('fname')}</div>
+                    </div>);
                 }
-                nodes.push(<div
-                    key={i}
-                    className='files_icon'
-                    title={nodelist.get(i).get('fname')}
-                    onClick={this.nodeClick.bind(this, nodelist.get(i).get('id'), nodelist.get(i).get('ftype'))}
-                >
-                    <div><img src={icon} /></div>
-                    <div>{nodelist.get(i).get('fname')}</div>
-                </div>);
+            }
+            else if (showtype === 'list') {
+                for (let i = 0, len = nodelist.size; i < len; i++) {
+                    let icon = theme.other;
+                    switch (nodelist.get(i).get('ftype')) {
+                        case 'folder':
+                            icon = theme.folder;
+                            break;
+                        case '.mp3':
+                        case '.wav':
+                            icon = theme.music;
+                            break;
+                        case '.mp4':
+                        case '.rmvb':
+                        case '.3gp':
+                        case '.mov':
+                        case '.avi':
+                            icon = theme.video;
+                            break;
+                        case '.jpg':
+                        case '.gif':
+                        case '.bmp':
+                            icon = theme.jpg;
+                            break;
+                        case '.png':
+                            icon = theme.png;
+                            break;
+                        case '.docx':
+                        case '.doc':
+                            icon = theme.doc;
+                            break;
+                        case '.txt':
+                            icon = theme.txt;
+                            break;
+                        case '.rar':
+                        case '.zip':
+                            icon = theme.zip;
+                            break;
+                        case '.conf':
+                        case '.cfg':
+                        case '.config':
+                            icon = theme.config;
+                            break;
+                        case '.xml':
+                            icon = theme.xml;
+                            break;
+                        case '.html':
+                            icon = theme.html;
+                            break;
+                        case '.scss':
+                        case '.less':
+                        case '.css':
+                            icon = theme.css;
+                            break;
+                        default:
+                            icon = theme.other;
+                    }
+                    nodes.push(
+                        <div key={i} className='files_list' title={nodelist.get(i).get('fname')}>
+                            <div onClick={this.nodeClick.bind(
+                                this,
+                                nodelist.get(i).get('id'),
+                                nodelist.get(i).get('fname'),
+                                nodelist.get(i).get('ftype'),
+                                nodelist.get(i).get('fsize')
+                            )}
+                            >
+                                <img src={icon} />
+                            </div>
+                            <div>{nodelist.get(i).get('fname')}</div>
+                            <div>
+                                {
+                                    nodelist.get(i).get('ftype') !== 'folder' ?
+                                        `${(nodelist.get(i).get('fsize') / (1024 * 1024)).toFixed(2)} MB`
+                                        : ''
+                                }
+                            </div>
+                            <div>{this.formatDate(nodelist.get(i).get('stime'))}</div>
+                        </div>);
+                }
             }
         }
-        else {
-            nodes.push(<div key='0' />);
-        }
-        return (<div className='files_content'>{nodes}</div>);
+        // else {
+        //     nodes.push(<div key='0' />);
+        // }
+        return <div className={showtype === 'block' ? 'content_block' : 'content_list'}>{nodes}</div>;
+
     }
 }
 

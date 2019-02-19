@@ -1,5 +1,6 @@
 const config = {
     appid: 'a8b31e58-2422-5880-9b7e-85acbb724f45',
+    appname: 'Randy.NAS',
     http: {
         port: 13579
     },

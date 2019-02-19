@@ -11,8 +11,8 @@ const initState = Immutable.Map({
 });
 
 const actions = {
-    [AUTH_INIT]: (state, action) => state.merge(action.data),
-    [AUTH_LOGIN]: (state, action) => state.merge(action.data),
+    [AUTH_INIT]: (state, action) => state.merge(Immutable.fromJS(action.data)),
+    [AUTH_LOGIN]: (state, action) => state.merge(Immutable.fromJS(action.data)),
     [AUTH_ERROR_CLEAR]: (state, action) => state.merge(action.data)
 };
 

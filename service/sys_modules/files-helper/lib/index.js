@@ -44,7 +44,6 @@ class fileshelper extends events {
     }
 
     async readdirsync(sh, fpath, fid, pcode) {
-        
         let files = null;
         try { files = fs.readdirSync(fpath); }
         catch (err) { this.logger.error(`class method readdirsync fs.readdirSync is error: ${fpath} => ${err} `); }
@@ -53,7 +52,7 @@ class fileshelper extends events {
             for (let i = 0, len = files.length; i < len; i++) {
                 const file = path.join(fpath, files[i]);
                 const stats = fs.statSync(file);
-                const id=uuidv4(),pathcode=`${pcode}-${i.toString(16)}`;
+                const id = uuidv4(), pathcode = `${pcode}-${i.toString(16)}`;
                 list.push({
                     $id: id,
                     $fid: fid,
@@ -62,20 +61,20 @@ class fileshelper extends events {
                     $fname: files[i],
                     $fext: path.extname(files[i]),
                     $fsize: stats.size,
-                    $ftype:(stats.isDirectory()?'folder':path.extname(files[i])),
-                    $ftime:stats.birthtime,
-                    $stime:new Date().getTime()
+                    $ftype: (stats.isDirectory() ? 'folder' : path.extname(files[i])),
+                    $ftime: stats.birthtime,
+                    $stime: new Date().getTime()
                 });
-                if (stats.isDirectory()) this.readdirsync(sh,file,id,pathcode);
+                if (stats.isDirectory()) this.readdirsync(sh, file, id, pathcode);
             }
             //this.logger.info('class method readdirsync fs.readdirSync path =>',list);
-            let shinit=null;
-            if (!sh.conn) shinit=await sh.init();
-            const rows=await sh.sqlexec({
+            let shinit = null;
+            if (!sh.conn) shinit = await sh.init();
+            const rows = await sh.sqlexec({
                 sql: 'insert into sys_list(id,fid,pathcode,fpath,fname,fext,fsize,ftype,ftime,stime) values($id,$fid,$pathcode,$fpath,$fname,$fext,$fsize,$ftype,$ftime,$stime);',
-                val:list
+                val: list
             });
-            this.logger.info('class method readdirsync fs.readdirSync path =>',list,rows);
+            this.logger.info('class method readdirsync fs.readdirSync path =>', list, rows);
         }
     }
 
@@ -105,14 +104,53 @@ class fileshelper extends events {
         });
     }
 
-    async getmenu(sh,fid){
-        let conn=null,rows=null;
-        if(!sh.conn)conn=await sh.init();
-        rows=await sh.sqlall({
-            sql: 'select id,fid,fname,ftype from sys_list where fid=$fid order by ftype desc,fname asc;',
-            val: { $fid:fid }
+    async getmenu(sh, fid) {
+        let conn = null, rows = null;
+        if (!sh.conn) conn = await sh.init();
+        rows = await sh.sqlall({
+            sql: 'select id,fid,fname,ftype,fsize,stime from sys_list where fid=$fid order by ftype desc,fname asc;',
+            val: { $fid: fid }
         });
         return rows;
+    }
+
+    async getfiles(sh, str) {
+        const sel = str.replace('，', ',').replace('。', '.').split(',');
+        let rows = null;
+        if (sel.length > 0) {
+            let ws = '', val = {};
+            for (let i = 0, len = sel.length; i < len; i++) {
+                if (sel[i].trim() === '') continue;
+                ws += `${i > 0 ? ' or ' : ''} fname like $fname${i}`;
+                val[`$fname${i}`] = `%${sel[i].trim().replace('*', '%')}%`;
+            }
+            this.logger.info(ws, val);
+            if (ws !== '') {
+                let conn = null;
+                if (!sh.conn) conn = await sh.init();
+                rows = await sh.sqlall({
+                    sql: `select id,fid,fname,ftype,fsize,stime from sys_list where ${ws} order by ftype desc,fname asc;`,
+                    val
+                });
+            }
+        }
+        return rows;
+    }
+
+    async downloadfile(sh, id) {
+        let conn = null, rows = null, rs = null;
+        if (!sh.conn) conn = await sh.init();
+        rows = await sh.sqlget({
+            sql: `select id,fpath,fname,ftype,fsize from sys_list where id=$id`,
+            val: { $id: id }
+        });
+        this.logger.info('------download---file-->', id, rows);
+        if (rows && rows.ftype !== 'folder') {
+            if (fs.existsSync(rows.fpath)) {
+                rs = fs.createReadStream(rows.fpath);
+            }
+        }
+        return { rows, rs };
     }
 
     readdirp(fpath) {

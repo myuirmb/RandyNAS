@@ -5,6 +5,7 @@ import dTree from './dtree';
 class Menu extends Component {
     static propTypes = {
         cid: PropTypes.string,
+        rn: PropTypes.string,
         nodelist: PropTypes.object,
         gm: PropTypes.func
     }
@@ -14,7 +15,7 @@ class Menu extends Component {
 
     getMenu() {
         const self = this;
-        const { cid, nodelist } = this.props;
+        const { cid, rn, nodelist } = this.props;
 
         if (window.dt_rm_01) {
             nodelist.map((v, k) => {
@@ -46,7 +47,7 @@ class Menu extends Component {
         else {
             if (cid) {
                 window.dt_rm_01 = new dTree('dt_rm_01', self);
-                dt_rm_01.add(cid, -1, 'My Nas', '0');
+                dt_rm_01.add(cid, -1, rn, '0');
                 nodelist.map((v, k) => {
                     for (let i = 0, len = v.size; i < len; i++) {
                         if (v.get(i).get('ftype') === 'folder') {

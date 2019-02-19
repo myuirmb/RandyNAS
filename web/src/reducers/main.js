@@ -6,14 +6,19 @@ import {
     SHOW_HIDDEN_DIALOG_TRUE,
     SHOW_HIDDEN_LOGIN_FALSE,
     SHOW_HIDDEN_LOGIN_TRUE,
-    MENU_INIT
+    CONTENT_SHOW_TYPE,
+    MENU_INIT,
+    GET_FILES,
+    UPDATE_PROGRESS
 } from '../actions/main';
 
-const initState = Immutable.Map({
+const initState = Immutable.fromJS({
     dialog: false,
     login: false,
     mask: false,
-    menu: null
+    menu: null,
+    showtype: 'block',    //block,list,
+    progress: null
 });
 
 const actions = {
@@ -23,7 +28,13 @@ const actions = {
     [SHOW_HIDDEN_DIALOG_TRUE]: state => state.set('dialog', true),
     [SHOW_HIDDEN_LOGIN_FALSE]: state => state.set('login', false),
     [SHOW_HIDDEN_LOGIN_TRUE]: state => state.set('login', true),
-    [MENU_INIT]: (state, action) =>state.mergeDeep(action.data)
+    [CONTENT_SHOW_TYPE]: (state, action) => state.set('showtype', Immutable.fromJS(action.data)),
+    [MENU_INIT]: (state, action) => state.mergeDeep(Immutable.fromJS(action.data)),
+    [GET_FILES]: (state, action) => state.merge(Immutable.fromJS(action.data)),
+    [UPDATE_PROGRESS]: (state, action) => {
+        console.log('----------reducers--------->',Immutable.fromJS(action.data));
+        return state.mergeDeep(Immutable.fromJS(action.data))
+    }
 };
 
 export default function auth(state = initState, action = {}) {
