@@ -14,6 +14,7 @@ export const CONTENT_SHOW_TYPE = 'CONTENT_SHOW_TYPE';
 
 export const MENU_INIT = 'MENU_INIT';
 export const GET_FILES = 'GET_FILES';
+export const NEW_FOLDER = 'NEW_FOLDER';
 export const UPDATE_PROGRESS = 'UPDATE_PROGRESS';
 
 export function showMask() {
@@ -52,6 +53,10 @@ export function getFiles(data) {
     return { type: GET_FILES, data };
 }
 
+export function newFolder(data){
+    return {type:NEW_FOLDER,data}
+}
+
 export function updateProgress(data) {
     return { type: UPDATE_PROGRESS, data };
 }
@@ -84,6 +89,21 @@ export function reqGetFiles(params) {
         req.on({
             before: (e, xhr) => { getProgress(dispatch, 'nl0'); },
             success: (res, status, xhr) => { dispatch(getFiles(res.data)); },
+            progress: (e, xhr) => { getProgress(dispatch, 'nl', e, xhr); }
+        });
+        req.send();
+    }
+}
+
+export function reqNewFolder(params){
+    return (dispatch, getState) => {
+        const conf = new Config();
+        const opt = conf.init('newfolder', getState);
+        const req = new Request({ ...opt, ...params });
+        
+        req.on({
+            before: (e, xhr) => { getProgress(dispatch, 'nl0'); },
+            success: (res, status, xhr) => { dispatch(menuInit(res.data)); },
             progress: (e, xhr) => { getProgress(dispatch, 'nl', e, xhr); }
         });
         req.send();
@@ -134,7 +154,7 @@ export function reqDownloadFile(params) {
                 const URL = window.URL || window.webkitURL;
                 const blob = new Blob([res]);
                 const url = URL.createObjectURL(blob);
-                console.log('------blob-url--->', url);
+                // console.log('------blob-url--->', url);
                 getProgress(dispatch, 'dl1', null, { data: { id: params.data.id, fname: filename, bloburl: url } });
             },
             progress: (e, xhr) => { getProgress(dispatch, 'dl2', e, params); }
@@ -175,7 +195,7 @@ export function getProgress(dispatch, type, event, params) {
                         dl: {
                             [params.data.id]: {
                                 fn: params.data.fname,
-                                // bl: '',
+                                bl: '',
                                 ps: {
                                     0: { computable: false, loaded: 0, total: 0, percent: 100, progress: 0 }
                                 }

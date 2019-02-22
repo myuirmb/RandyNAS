@@ -143,8 +143,7 @@ app.post('/files', mp, jp, cp, async (req, res) => {
     res.end();
 });
 
-app.post('/download', mp, jp, cp, async (req, res) => {
-    logger.info(1234);
+app.post('/dl', mp, jp, cp, async (req, res) => {
     const id = req.body.id;
     let resault = null;
     try {
@@ -153,7 +152,7 @@ app.post('/download', mp, jp, cp, async (req, res) => {
     catch (e) {
         logger.error('download in error:', e);
     }
-    logger.info('------download---->', id, resault);
+    // logger.info('------download---->', id, resault);
     if (resault.rs) {
         res.writeHead(200, {
             // 'Content-Type': 'application/force-download',
@@ -166,6 +165,25 @@ app.post('/download', mp, jp, cp, async (req, res) => {
     else {
         res.end();
     }
+});
+
+app.post('/ul', mp, jp, cp, (req, res) => {
+
+});
+
+app.post('/nf', mp, jp, cp, async (req, res) => {
+    const pid = req.body.id, foldername = req.body.fn;
+    let resault = null;
+    try {
+        resault = await fh.newfolder(sh, pid, foldername);
+    }
+    catch (e) {
+        logger.error('new folder in error:', e);
+    }
+    if (resault[pid])
+        res.end(`{"code":200,"data":{"menu":${JSON.stringify(resault)}},"msg":"ok"}`);
+    else
+        res.end('{"code":501,"msg":"service error"}');
 });
 
 app.all('/*', (req, res) => {

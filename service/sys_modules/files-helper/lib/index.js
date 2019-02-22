@@ -144,13 +144,80 @@ class fileshelper extends events {
             sql: `select id,fpath,fname,ftype,fsize from sys_list where id=$id`,
             val: { $id: id }
         });
-        this.logger.info('------download---file-->', id, rows);
+        // this.logger.info('------download---file-->', id, rows);
         if (rows && rows.ftype !== 'folder') {
             if (fs.existsSync(rows.fpath)) {
                 rs = fs.createReadStream(rows.fpath);
             }
         }
         return { rows, rs };
+    }
+
+    async newfolder(sh, pid, foldername) {
+        let conn = null, rows = null;
+        if (!sh.conn) conn = await sh.init();
+        rows = await sh.sqlall({
+            sql: `select id,pathcode from sys_list where id=$fid
+            union all
+            select * from (select id,pathcode from sys_list where fid=$fid order by stime desc limit 1)
+            order by pathcode asc;`,
+            val: { $fid: pid }
+        });
+        let fpc = '0', order = 0;
+        switch (rows.length) {
+            // case 0:
+            //     fpc='0';
+            //     order=0;
+            //     break;
+            case 1:
+                if (rows[0].id === pid) {   //child node is null
+                    fpc = rows[0].pathcode;
+                    order = 0;
+                }
+                else {   //one level node
+                    fpc = '0';
+                    const pc = rows[0].pathcode.split('-');
+                    //this.logger.debug('-------order---->',pc[pc.length - 1],global.parseInt(pc[pc.length - 1], 16));
+                    if (pc.length > 1) order = global.parseInt(pc[pc.length - 1], 16) + 1;
+                }
+                break;
+            case 2:
+                if (rows[0].id === pid) {   //line 0 is parent node
+                    fpc = rows[0].pathcode;
+                    const pc = rows[1].pathcode.split('-');
+                    if (pc.length > 1) order = global.parseInt(pc[pc.length - 1], 16) + 1;
+                }
+                else {   //line 1 is parent node
+                    fpc = rows[1].pathcode;
+                    const pc = rows[0].pathcode.split('-');
+                    if (pc.length > 1) order = global.parseInt(pc[pc.length - 1], 16) + 1;
+                }
+                break;
+            default:
+                break;
+        }
+
+        let newid = uuidv4(), stime = new Date().getTime();
+        const irows = await sh.sqlexec({
+            sql: 'insert into sys_list(id,fid,pathcode,fpath,fname,fext,fsize,ftype,ftime,stime) values($id,$fid,$pathcode,$fpath,$fname,$fext,$fsize,$ftype,$ftime,$stime);',
+            val: [{
+                $id: newid,
+                $fid: pid,
+                $pathcode: `${fpc}-${order.toString(16)}`,
+                $fpath: '0',
+                $fname: foldername,
+                $fext: '',
+                $fsize: 0,
+                $ftype: 'folder',
+                $ftime: stime,
+                $stime: stime
+            }]
+        });
+
+        if (irows.res > 0)
+            return { [pid]: [{ id: newid, fid: pid, fname: foldername, ftype: 'folder', fsize: 0, stime }] };
+        else
+            return irows;
     }
 
     readdirp(fpath) {

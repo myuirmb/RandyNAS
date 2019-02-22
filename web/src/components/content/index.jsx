@@ -51,7 +51,7 @@ class Content extends Component {
             gm(id);
         }
         else {
-            console.log('------content--ondeclick---id----ftype------>', id, ftype);
+            // console.log('------content--ondeclick---id----ftype------>', id, ftype);
             dlf(id, fname, ftype, fsize);
         }
     }

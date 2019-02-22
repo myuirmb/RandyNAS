@@ -83,7 +83,7 @@ class sqlitehelper {
      *  val:[{ $id: uuidv4(), $username: `chk${i}`, $password: uuidv4(), $utype: 'test', $stime: Date.now() }]
      * }
      */
-    sqlexec(so, flag) {
+    sqlexec(so) {
         return new Promise((resolve, reject) => {
             this.conn.serialize(() => {
                 let res = { res: 0, err: [] };

@@ -32,7 +32,7 @@ const actions = {
     [MENU_INIT]: (state, action) => state.mergeDeep(Immutable.fromJS(action.data)),
     [GET_FILES]: (state, action) => state.merge(Immutable.fromJS(action.data)),
     [UPDATE_PROGRESS]: (state, action) => {
-        console.log('----------reducers--------->',Immutable.fromJS(action.data));
+        // console.log('----------reducers--------->',Immutable.fromJS(action.data));
         return state.mergeDeep(Immutable.fromJS(action.data))
     }
 };

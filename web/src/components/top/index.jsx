@@ -6,17 +6,28 @@ class TopBar extends Component {
         cid: PropTypes.string,
         rn: PropTypes.string,
         pid: PropTypes.string,
+        gf:PropTypes.func,
+        nf:PropTypes.func,
         sst: PropTypes.func,
-        gm: PropTypes.func
+        gm: PropTypes.func,
     }
     constructor() {
         super();
+
+        this.searchClick=this.searchClick.bind(this);
+        this.newFolderClick=this.newFolderClick.bind(this);
+        // this.showTypeClick=this.showTypeClick.bind(this);
     }
 
     searchClick() {
         const { gf } = this.props;
         const str = this.refs.searchtxt.value;
         if (str.trim() !== '') gf(str);
+    }
+
+    newFolderClick(){
+        const { nf } = this.props;
+        nf();
     }
 
     showTypeClick(t) {
@@ -30,7 +41,7 @@ class TopBar extends Component {
     }
 
     render() {
-        const { cid, rn, pid, gm } = this.props;
+        const { cid, rn, pid } = this.props;
 
         let xpath = [];
         if (window.dt_rm_01) {
@@ -63,7 +74,10 @@ class TopBar extends Component {
                 <div>
                     <div>
                         <input type='text' ref='searchtxt' placeholder='search...' />
-                        <input type='button' value='Search' onClick={this.searchClick.bind(this)} />
+                        <input type='button' value='Search' onClick={this.searchClick} />
+                    </div>
+                    <div>
+                        <span onClick={this.newFolderClick}>new folder</span>
                     </div>
                     <div>
                         <span onClick={this.showTypeClick.bind(this, 'block')}>block</span>

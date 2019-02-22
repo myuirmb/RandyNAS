@@ -8,7 +8,9 @@ class Config {
                     login: '/login',
                     menu: '/menu',
                     files: '/files',
-                    download: '/download'
+                    download: '/dl',
+                    upload: '/ul',
+                    newfolder: '/nf'
                 }
             }
         }

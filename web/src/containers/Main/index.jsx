@@ -12,7 +12,8 @@ import {
     hiddenLogin,
     reqMenuInit,
     reqGetFiles,
-    reqDownloadFile
+    reqDownloadFile,
+    reqNewFolder
 } from '../../actions/main';
 
 import MainFlex from '../../components/layout';
@@ -36,6 +37,7 @@ class Main extends Component {
         super();
         this.closeDialog = this.closeDialog.bind(this);
         this.getMeun = this.getMeun.bind(this);
+        this.newFolder = this.newFolder.bind(this);
         this.setShowType = this.setShowType.bind(this);
         this.getFiles = this.getFiles.bind(this);
         this.downloadFile = this.downloadFile.bind(this);
@@ -71,6 +73,13 @@ class Main extends Component {
         }
     }
 
+    newFolder(fname) {
+        const { main,dispatch } = this.props;
+        let pid = this.state.pid;
+        if (pid === 0) pid = main.get('cid');
+        dispatch(reqNewFolder({ data: { id: pid, fn: 'testx' } }));
+    }
+
     getFiles(str) {
         const { dispatch } = this.props;
         this.setState({ search: true });
@@ -96,6 +105,7 @@ class Main extends Component {
             rn={main.get('rn')}
             pid={pid}
             gf={this.getFiles}
+            nf={this.newFolder}
             gm={this.getMeun}
             sst={this.setShowType}
         />;
@@ -114,7 +124,7 @@ class Main extends Component {
 
             let nodelist = main.getIn(['menu', pid]);
             if (this.state.search) {
-                console.log('---------->', main.get('search'));
+                // console.log('---------->', main.get('search'));
                 nodelist = main.get('search');
             }
             return <Content
