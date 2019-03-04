@@ -32,6 +32,11 @@ const config = {
         m5: '51072f5f-941e-4478-9139-33a67162dcf5',
         s1: 'd8ddd1f1-00f6-442b-b88c-e122918835f5',
         s5: 'e2ff1f08-383b-438b-b14b-607e2e28bbb1'
+    },
+
+    upl: {
+        temp: 'D:\\Randy\\nase\\randynas\\upload\\temp',
+        dir: 'D:\\Randy\\nase\\randynas\\upload\\uploads'
     }
 };
 

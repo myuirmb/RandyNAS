@@ -9,7 +9,7 @@ class fileshelper extends events {
     constructor() {
         super();
 
-        //let conf = config();
+        this.conf = config();
         log4js.configure(config(1));
         this.logger = log4js.getLogger('files-helper.index');
     }
@@ -219,6 +219,96 @@ class fileshelper extends events {
         else
             return irows;
     }
+
+    async mergefiles() {
+        const date = new Date();
+        const y = date.getFullYear(), m = date.getMonth(), d = date.getDate();
+        const dir = path.join(this.conf.upl.dir, `y_${y}`, `m_${(m + 1).toString().padStart(2, '0')}`, `d_${d.toString().padStart(2, '0')}`);
+        this.logger.info(dir);
+        const status = await this.dirExists(dir);
+
+        const ws = fs.createWriteStream(path.join(dir, `PMO_convert_${uuidv4()}_001.zip`));
+        // ws.addListener('drain', () => { this.logger.info('---------createWriteStream------------->drain'); });
+        ws.addListener('close', () => { this.logger.info('---------createWriteStream------------->close'); });
+        // ws.addListener('error', () => { this.logger.info('---------createWriteStream------------->error'); });
+
+        const filelist = ['R-0GMo5Pi6lw477g6XUtqn1M', 'i0gEcdzKT1zIIQqcpB2F4DFx'];
+
+        for (let i = 0; i < filelist.length; i++) {
+            this.logger.info(`---------writestream------------->await_${i}`);
+            const flag = await this.writestream(filelist[i], ws, (i === filelist.length - 1));
+        }
+        this.logger.info('---------createWriteStream------------->close0');
+    }
+
+    writestream(fname, ws, end) {
+        return new Promise((resolve, reject) => {
+            const rs = fs.createReadStream(path.join(this.conf.upl.temp, fname));
+            rs.addListener('end', () => {
+                // this.logger.info(`---------createReadStream----${fname}--------->end`);
+                resolve(true)
+            });
+            rs.pipe(ws, { end });
+        });
+    }
+
+
+    /**
+     * 读取路径信息
+     * @param {string} path 路径
+     */
+    getStat(path) {
+        return new Promise((resolve, reject) => {
+            fs.stat(path, (err, stats) => {
+                if (err) {
+                    resolve(false);
+                } else {
+                    resolve(stats);
+                }
+            })
+        })
+    }
+
+    /**
+     * 创建路径
+     * @param {string} dir 路径
+     */
+    mkdir(dir) {
+        return new Promise((resolve, reject) => {
+            fs.mkdir(dir, err => {
+                if (err) {
+                    resolve(false);
+                } else {
+                    resolve(true);
+                }
+            })
+        })
+    }
+
+    /**
+     * 路径是否存在，不存在则创建
+     * @param {string} dir 路径
+     */
+    async dirExists(dir) {
+        let isExists = await this.getStat(dir);
+        //如果该路径且不是文件，返回true
+        if (isExists && isExists.isDirectory()) {
+            return true;
+        } else if (isExists) {     //如果该路径存在但是文件，返回false
+            return false;
+        }
+        //如果该路径不存在
+        let tempDir = path.parse(dir).dir;      //拿到上级路径
+        //递归判断，如果上级目录也不存在，则会代码会在此处继续循环执行，直到目录存在
+        let status = await this.dirExists(tempDir);
+        let mkdirStatus;
+        if (status) {
+            mkdirStatus = await this.mkdir(dir);
+        }
+        return mkdirStatus;
+    }
+
+
 
     readdirp(fpath) {
         return new Promise((resolve, reject) => {

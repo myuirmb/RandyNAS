@@ -6,17 +6,25 @@ class TopBar extends Component {
         cid: PropTypes.string,
         rn: PropTypes.string,
         pid: PropTypes.string,
-        gf:PropTypes.func,
-        nf:PropTypes.func,
+        uf: PropTypes.func,
+        gf: PropTypes.func,
+        nf: PropTypes.func,
         sst: PropTypes.func,
         gm: PropTypes.func,
     }
     constructor() {
         super();
 
-        this.searchClick=this.searchClick.bind(this);
-        this.newFolderClick=this.newFolderClick.bind(this);
+        this.uploadClick = this.uploadClick.bind(this);
+        this.searchClick = this.searchClick.bind(this);
+        this.newFolderClick = this.newFolderClick.bind(this);
         // this.showTypeClick=this.showTypeClick.bind(this);
+    }
+
+    uploadClick(){
+        const {uf}=this.props;
+        const files=this.refs.ulfiles.files;
+        uf(files);
     }
 
     searchClick() {
@@ -25,7 +33,7 @@ class TopBar extends Component {
         if (str.trim() !== '') gf(str);
     }
 
-    newFolderClick(){
+    newFolderClick() {
         const { nf } = this.props;
         nf();
     }
@@ -72,6 +80,10 @@ class TopBar extends Component {
             <div>13123</div>
             <div>
                 <div>
+                    <div>
+                        <input type='file' multiple ref='ulfiles' placeholder='choose files...' />
+                        <input type='button' value='Upload' onClick={this.uploadClick} />
+                    </div>
                     <div>
                         <input type='text' ref='searchtxt' placeholder='search...' />
                         <input type='button' value='Search' onClick={this.searchClick} />

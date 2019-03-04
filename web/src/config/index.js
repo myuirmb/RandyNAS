@@ -12,6 +12,9 @@ class Config {
                     upload: '/ul',
                     newfolder: '/nf'
                 }
+            },
+            upload: {
+                limit: 1024 * 1024 * 100 // 50M
             }
         }
     }
@@ -21,6 +24,10 @@ class Config {
         const token = gt().get('auth').get('tk');
         if (token) headers = { headers: { Authorization: `Bearer ${token}` } };
         return { url: `/api${this.options.service.interface[path]}`, ...headers };
+    }
+
+    ul(){
+        return this.options.upload.limit;
     }
 }
 

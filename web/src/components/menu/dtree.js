@@ -336,6 +336,7 @@ dTree.prototype.setCS = function (node) {
 	}
 
 	if (lastId == node.id) node._ls = true;
+	else node._ls = false;	//.add
 
 };
 

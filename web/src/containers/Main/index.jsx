@@ -10,6 +10,7 @@ import {
     showType,
     showLogin,
     hiddenLogin,
+    reqUploadFiles,
     reqMenuInit,
     reqGetFiles,
     reqDownloadFile,
@@ -37,6 +38,7 @@ class Main extends Component {
         super();
         this.closeDialog = this.closeDialog.bind(this);
         this.getMeun = this.getMeun.bind(this);
+        this.uploadFiles = this.uploadFiles.bind(this);
         this.newFolder = this.newFolder.bind(this);
         this.setShowType = this.setShowType.bind(this);
         this.getFiles = this.getFiles.bind(this);
@@ -60,6 +62,13 @@ class Main extends Component {
         return main.get('login') ? <Login /> : null;
     }
 
+    uploadFiles(files) {
+        const { main, dispatch } = this.props;
+        let pid = this.state.pid;
+        if (pid === 0) pid = main.get('cid');
+        dispatch(reqUploadFiles({ pid, files }));
+    }
+
     getMeun(pid) {
         const { main, dispatch } = this.props;
         this.setState({
@@ -74,10 +83,10 @@ class Main extends Component {
     }
 
     newFolder(fname) {
-        const { main,dispatch } = this.props;
+        const { main, dispatch } = this.props;
         let pid = this.state.pid;
         if (pid === 0) pid = main.get('cid');
-        dispatch(reqNewFolder({ data: { id: pid, fn: 'testx' } }));
+        dispatch(reqNewFolder({ data: { pid, fn: 'testx' } }));
     }
 
     getFiles(str) {
@@ -104,6 +113,7 @@ class Main extends Component {
             cid={main.get('cid')}
             rn={main.get('rn')}
             pid={pid}
+            uf={this.uploadFiles}
             gf={this.getFiles}
             nf={this.newFolder}
             gm={this.getMeun}

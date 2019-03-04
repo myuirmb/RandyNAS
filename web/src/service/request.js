@@ -26,6 +26,12 @@ class Request extends Events {
         this.xhr.addEventListener('loadend', this.complete.bind(this));
         this.xhr.addEventListener('error', this.err.bind(this));
 
+        // this.xhr.upload.addEventListener('loadstart', this.ulbefore.bind(this));
+        this.xhr.upload.addEventListener('progress', this.ulprog.bind(this));
+        // this.xhr.upload.addEventListener('load', this.ulsuccess.bind(this));
+        // this.xhr.upload.addEventListener('loadend', this.ulcomplete.bind(this));
+        // this.xhr.upload.addEventListener('error', this.ulerr.bind(this));
+
         this.xhr.open(this.options.type, this.options.url, this.options.async);
         this.xhr.responseType = this.options.dataType;
         if (this.options.hasOwnProperty('headers')) {
@@ -43,6 +49,10 @@ class Request extends Events {
     prog(e) {
         // console.log(e);
         this.emit('progress', e, this.xhr);
+    }
+
+    ulprog(e) {
+        this.emit('ulprogress', e, this.xhr);
     }
 
     success(e) {

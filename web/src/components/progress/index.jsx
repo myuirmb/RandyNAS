@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Immutable from 'immutable';
 // import {Grid, Row, Col} from 'react-bootstrap';
 
 class Progress extends React.Component {
@@ -14,7 +15,7 @@ class Progress extends React.Component {
         this.hiddenDownloadList = this.hiddenDownloadList.bind(this);
     }
 
-    dlgropress(ps) {
+    gropress(ps) {
         let pss = [];
         ps.map((item, key) => {
             pss.push(
@@ -33,7 +34,7 @@ class Progress extends React.Component {
         dl.map((item, key) => {
             dls.push(
                 <div key={key} className='progress-dl'>
-                    <div>{this.dlgropress(item.get('ps'))}</div>
+                    <div>{this.gropress(item.get('ps'))}</div>
                     {
                         item.get('bl') ?
                             <div><a id={`dl_${key}`} href={item.get('bl')} download={item.get('fn')}>{item.get('fn')}</a></div>
@@ -45,6 +46,33 @@ class Progress extends React.Component {
         return dls;
     }
 
+
+    // ulgropress(ps) {
+    //     let pss = [];
+    //     ps.map((item, key) => {
+    //         pss.push(
+    //             <div key={key} style={{ flexBasis: `${item.get('percent')}%` }}>
+    //                 <div style={{ width: `${item.get('progress')}%` }}></div>
+    //             </div>
+    //         );
+    //     });
+    //     return pss;
+    // }
+
+    ulRender(ul) {
+        if (!ul) return null;
+
+        let uls = [];
+        ul.map((item, key) => {
+            uls.push(
+                <div key={key} className='progress-dl'>
+                    <div>{this.gropress(item.get('ps'))}</div>
+                    <div>{item.get('fn')}</div>
+                </div>
+            );
+        });
+        return uls;
+    }
 
     showDownloadList(e) {
         const target = e.currentTarget;
@@ -74,12 +102,13 @@ class Progress extends React.Component {
         if (!prog) return null;
 
         const normal = prog.get('nl').get('progress') < 100 ? prog.get('nl').get('progress') : 100;
-        const download = prog.get('dl');
+        const download = prog.get('dl'), upload = prog.get('ul');
+        const du = Immutable.Map({}).merge(download, upload);
 
         let dup = 0, styletop = 0;
-        if (download) {
+        if (download||upload) {
             let loadeds = 0, totals = 0;
-            download.map((item, key) => {
+            du.map((item, key) => {
                 let thisloadeds = 0, thistotals = 0, thisflag = false;
                 // console.log(item.get('ps'));
                 item.get('ps').map((i, k) => {
@@ -104,6 +133,7 @@ class Progress extends React.Component {
                 onMouseEnter={this.showDownloadList}
                 onMouseLeave={this.hiddenDownloadList}
             >
+                {this.ulRender(upload)}
                 {this.dlRender(download)}
                 <div className='progress-nl'>
                     <div style={{ width: `${normal}%` }}></div>

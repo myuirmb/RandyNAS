@@ -1,5 +1,6 @@
 import Request from '../service/request';
 import Config from '../config';
+import UUID from 'uuid/v4';
 
 export const SHOW_HIDDEN_MASK_TRUE = 'SHOW_HIDDEN_MASK_TRUE';
 export const SHOW_HIDDEN_MASK_FALSE = 'SHOW_HIDDEN_MASK_FALSE';
@@ -53,8 +54,8 @@ export function getFiles(data) {
     return { type: GET_FILES, data };
 }
 
-export function newFolder(data){
-    return {type:NEW_FOLDER,data}
+export function newFolder(data) {
+    return { type: NEW_FOLDER, data }
 }
 
 export function updateProgress(data) {
@@ -71,8 +72,8 @@ export function reqMenuInit(params) {
         // });
         req.on({
             before: (xhr) => { getProgress(dispatch, 'nl0'); },
-            success: (res, status, xhr) => { dispatch(menuInit(res.data)); },
-            progress: (e, xhr) => { getProgress(dispatch, 'nl', e, xhr); }
+            progress: (e, xhr) => { getProgress(dispatch, 'nl', e, xhr); },
+            success: (res, status, xhr) => { dispatch(menuInit(res.data)); }
         });
         req.send();
     }
@@ -88,23 +89,23 @@ export function reqGetFiles(params) {
         // });
         req.on({
             before: (e, xhr) => { getProgress(dispatch, 'nl0'); },
-            success: (res, status, xhr) => { dispatch(getFiles(res.data)); },
-            progress: (e, xhr) => { getProgress(dispatch, 'nl', e, xhr); }
+            progress: (e, xhr) => { getProgress(dispatch, 'nl', e, xhr); },
+            success: (res, status, xhr) => { dispatch(getFiles(res.data)); }
         });
         req.send();
     }
 }
 
-export function reqNewFolder(params){
+export function reqNewFolder(params) {
     return (dispatch, getState) => {
         const conf = new Config();
         const opt = conf.init('newfolder', getState);
         const req = new Request({ ...opt, ...params });
-        
+
         req.on({
             before: (e, xhr) => { getProgress(dispatch, 'nl0'); },
-            success: (res, status, xhr) => { dispatch(menuInit(res.data)); },
-            progress: (e, xhr) => { getProgress(dispatch, 'nl', e, xhr); }
+            progress: (e, xhr) => { getProgress(dispatch, 'nl', e, xhr); },
+            success: (res, status, xhr) => { dispatch(menuInit(res.data)); }
         });
         req.send();
     }
@@ -144,6 +145,7 @@ export function reqDownloadFile(params) {
 
         req.on({
             before: (e, xhr) => { getProgress(dispatch, 'dl0', e, params); },
+            progress: (e, xhr) => { getProgress(dispatch, 'dl1', e, params); },
             success: (res, status, xhr) => {
                 let filename = 'Randy.NAS';
                 const cd = xhr.getResponseHeader('content-disposition');
@@ -155,12 +157,60 @@ export function reqDownloadFile(params) {
                 const blob = new Blob([res]);
                 const url = URL.createObjectURL(blob);
                 // console.log('------blob-url--->', url);
-                getProgress(dispatch, 'dl1', null, { data: { id: params.data.id, fname: filename, bloburl: url } });
-            },
-            progress: (e, xhr) => { getProgress(dispatch, 'dl2', e, params); }
+                getProgress(dispatch, 'dl2', null, { data: { id: params.data.id, fname: filename, bloburl: url } });
+            }
         });
 
         req.send();
+    }
+}
+
+export function reqUploadFiles(params) {
+    return (dispatch, getState) => {
+        const conf = new Config();
+        const opt = conf.init('upload', getState);
+        const limit = conf.ul();
+        for (let i = 0, len = params.files.length; i < len; i++) {
+            const file = params.files[i], thisid = UUID(); //file.size,file.name,file.type
+            const sp = Math.round(file.size / limit);
+            // if (file.size > limit && sp > 1) {
+            if (sp > 1) {
+                for (let i = 0; i < sp; i++) {
+                    let blob = null, percent = 0;
+                    if (i < sp - 1) {
+                        blob = file.slice(i * limit, (i + 1) * limit);
+                        percent = Math.floor((limit / file.size) * 100);
+                    }
+                    else {  //last split
+                        blob = file.slice(i * limit);
+                        percent = 100 - (Math.floor((limit / file.size) * 100) * (sp - 1));
+                    }
+                    const req = new Request({ ...opt, data: { pid: params.pid, id: thisid, fname: file.name, fsize: file.size, ftype: file.type, files: blob, sp, order: i } });
+                    req.on({
+                        before: (e, xhr) => { getProgress(dispatch, 'ul0', e, { data: { id: thisid, fname: file.name, order: i, percent: percent } }); },
+                        ulprogress: (e, xhr) => { getProgress(dispatch, 'ul1', e, { data: { id: thisid, order: i } }); },
+                        success: (res, status, xhr) => {
+                            console.log('-----success----->', res);
+                            // dispatch(menuInit(res.data));
+                        }
+                    });
+                    req.send();
+                }
+            }
+            else {  //not split
+                const req = new Request({ ...opt, data: { pid: params.pid, id: thisid, fname: file.name, fsize: file.size, ftype: file.type, files: file, sp: 1, order: 0 } });
+                req.on({
+                    before: (e, xhr) => { getProgress(dispatch, 'ul0', e, { data: { id: thisid, fname: file.name, order: 0, percent: 100 } }); },
+                    ulprogress: (e, xhr) => { getProgress(dispatch, 'ul1', e, { data: { id: thisid, order: 0 } }); },
+                    success: (res, status, xhr) => {
+                        console.log('-----success----->', res);
+                        // dispatch(menuInit(res.data));
+                    }
+                });
+                req.send();
+            }
+
+        }
     }
 }
 
@@ -211,20 +261,6 @@ export function getProgress(dispatch, type, event, params) {
                     progress: {
                         dl: {
                             [params.data.id]: {
-                                fn: params.data.fname,
-                                bl: params.data.bloburl
-                            }
-                        }
-                    }
-                })
-            );
-            break;
-        case 'dl2':
-            dispatch(
-                updateProgress({
-                    progress: {
-                        dl: {
-                            [params.data.id]: {
                                 // fn: event.data.fname,
                                 // bl: '',
                                 ps: {
@@ -241,8 +277,65 @@ export function getProgress(dispatch, type, event, params) {
                 })
             );
             break;
-        case 'ul':
+        case 'dl2':
+            dispatch(
+                updateProgress({
+                    progress: {
+                        dl: {
+                            [params.data.id]: {
+                                fn: params.data.fname,
+                                bl: params.data.bloburl
+                            }
+                        }
+                    }
+                })
+            );
             break;
+
+        case 'ul0':
+            dispatch(
+                updateProgress({
+                    progress: {
+                        ul: {
+                            [params.data.id]: {
+                                fn: params.data.fname,
+                                ps: {
+                                    [params.data.order]: {
+                                        computable: false,
+                                        loaded: 0,
+                                        total: 0,
+                                        progress: 0,
+                                        percent: params.data.percent
+                                    }
+                                }
+                            }
+                        }
+                    }
+                })
+            );
+            break;
+        case 'ul1':
+            dispatch(
+                updateProgress({
+                    progress: {
+                        ul: {
+                            [params.data.id]: {
+                                // fn: event.data.fname,
+                                ps: {
+                                    [params.data.order]: {
+                                        computable: event.lengthComputable,
+                                        loaded: event.loaded,
+                                        total: event.total,
+                                        progress: event.loaded > 0 ? Math.floor((event.loaded / event.total) * 10000) / 100 : 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                })
+            );
+            break;
+
         default:
             dispatch(
                 updateProgress({

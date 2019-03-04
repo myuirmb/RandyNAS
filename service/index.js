@@ -16,6 +16,8 @@ const authhelper = require('./sys_modules/auth-helper');
 //-----config-------------------------------
 const conf = config();
 
+global.uploads = {};
+
 //-----log----------------------------------
 log4js.configure(config(1));
 const logger = log4js.getLogger('index');
@@ -32,8 +34,6 @@ logger.info('----------init-----key-------------->', privatekey, publickey)
 //-----auth-helper--------------------------
 const ah = new authhelper();
 
-
-
 //-----http-------------------------------------------------------------------------
 const app = express();
 const server = http.createServer(app);
@@ -44,7 +44,7 @@ server.listen(conf.http.port, () => {
 const jp = bodyparser.json();
 const cp = cookieparser('f8926d84-32c4-41a2-ae3e-d5b81bf9a063');
 //const urlp = bodyparser.urlencoded({ extended: false });
-const mp = multipart();
+const mp = multipart({ uploadDir: conf.upl.temp });
 
 
 app.disable('x-powered-by');
@@ -66,6 +66,9 @@ app.get('/', jp, cp, async (req, res) => {
 
     // res.setHeader('Content-Type', 'text/plain');
     // res.send(allfiles);
+
+    const t = await fh.mergefiles();
+
     res.end();
 });
 
@@ -168,11 +171,20 @@ app.post('/dl', mp, jp, cp, async (req, res) => {
 });
 
 app.post('/ul', mp, jp, cp, (req, res) => {
-
+    const pid = req.body.pid,
+        id = req.body.id,
+        fname = req.body.fname,
+        fsize = req.body.fsize,
+        ftype = req.body.ftype,
+        sp = req.body.sp,
+        order = req.body.order,
+        files = req.files;
+    logger.info(`-----upload----->:pid=${pid},id=${id},fname=${fname},fsize=${fsize},ftype=${ftype},sp=${sp},order=${order}`, files);
+    res.end();
 });
 
 app.post('/nf', mp, jp, cp, async (req, res) => {
-    const pid = req.body.id, foldername = req.body.fn;
+    const pid = req.body.pid, foldername = req.body.fn;
     let resault = null;
     try {
         resault = await fh.newfolder(sh, pid, foldername);

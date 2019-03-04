@@ -11,6 +11,8 @@ class Menu extends Component {
     }
     constructor() {
         super();
+
+        this.getMenu=this.getMenu.bind(this);
     }
 
     getMenu() {
@@ -19,27 +21,29 @@ class Menu extends Component {
 
         if (window.dt_rm_01) {
             nodelist.map((v, k) => {
-                let thisnode = true;
-                for (let i = 0, len = dt_rm_01.aNodes.length; i < len; i++) {
-                    if (v.size === 0 || v.get(0).get('id') === dt_rm_01.aNodes[i].id) {
-                        thisnode = false;
-                        break;
-                    }
-                }
-                if (thisnode) {
-                    for (let i = 0, len = v.size; i < len; i++) {
-                        if (v.get(i).get('ftype') === 'folder') {
-                            dt_rm_01.add(
-                                v.get(i).get('id'),
-                                v.get(i).get('fid'),
-                                v.get(i).get('fname'),
-                                v.get(i).get('id'),
-                                '',
-                                '',
-                                dt_rm_01.icon.folder,
-                                dt_rm_01.icon.folderOpen
-                            );
+                for (let j = 0, vlen = v.size; j < vlen; j++) {
+                    let flag = true;
+                    // console.log('------v.get(j).get(id)------->', v.get(j).get('id'));
+                    for (let i = 0, len = dt_rm_01.aNodes.length; i < len; i++) {
+                        // console.log('------dt_rm_01.aNodes[i].id------->', dt_rm_01.aNodes[i].id);
+                        // console.log('====>', v.get(j).get('id') === dt_rm_01.aNodes[i].id);
+                        if (v.get(j).get('ftype') !== 'folder' || v.get(j).get('id') === dt_rm_01.aNodes[i].id) {
+                            flag = false;
+                            break;
                         }
+                    }
+                    // console.log('----flag-->', flag,`\r\n`);
+                    if (flag) {
+                        dt_rm_01.add(
+                            v.get(j).get('id'),
+                            v.get(j).get('fid'),
+                            v.get(j).get('fname'),
+                            v.get(j).get('id'),
+                            '',
+                            '',
+                            dt_rm_01.icon.folder,
+                            dt_rm_01.icon.folderOpen
+                        );
                     }
                 }
             });
@@ -66,6 +70,8 @@ class Menu extends Component {
                 });
             }
         }
+
+        // if(window.dt_rm_01)console.log(dt_rm_01.toString());
         return window.dt_rm_01 ? dt_rm_01.toString() : '';
     }
 
