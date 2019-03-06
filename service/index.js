@@ -16,7 +16,7 @@ const authhelper = require('./sys_modules/auth-helper');
 //-----config-------------------------------
 const conf = config();
 
-global.uploads = {};
+let uploads = {};
 
 //-----log----------------------------------
 log4js.configure(config(1));
@@ -67,9 +67,9 @@ app.get('/', jp, cp, async (req, res) => {
     // res.setHeader('Content-Type', 'text/plain');
     // res.send(allfiles);
 
-    const t = await fh.mergefiles();
-
-    res.end();
+    // const t = await fh.mergefiles(['R-0GMo5Pi6lw477g6XUtqn1M', 'i0gEcdzKT1zIIQqcpB2F4DFx'], uuidv4(), '.zip');
+    // logger.info(t);
+    res.end('end');
 });
 
 
@@ -170,7 +170,7 @@ app.post('/dl', mp, jp, cp, async (req, res) => {
     }
 });
 
-app.post('/ul', mp, jp, cp, (req, res) => {
+app.post('/ul', mp, jp, cp, async (req, res) => {
     const pid = req.body.pid,
         id = req.body.id,
         fname = req.body.fname,
@@ -179,8 +179,34 @@ app.post('/ul', mp, jp, cp, (req, res) => {
         sp = req.body.sp,
         order = req.body.order,
         files = req.files;
+    const sp1 = parseInt(sp), order1 = parseInt(order);
+
     logger.info(`-----upload----->:pid=${pid},id=${id},fname=${fname},fsize=${fsize},ftype=${ftype},sp=${sp},order=${order}`, files);
-    res.end();
+
+    let resault = null;
+    if (sp1 === 1) {
+        resault = await fh.uploadfile(sh, pid, fname, fsize, [files.files.path]);
+    }
+    else if (sp1 > 1) {
+        if (!uploads[`f_${id}`]) uploads[`f_${id}`] = { sp: sp1, upl: 0, filelist: [] };
+
+        uploads[`f_${id}`].upl += 1;
+        uploads[`f_${id}`].filelist[order1] = files.files.path;
+
+
+        logger.info('---------uploads--info-------->', uploads);
+
+        if (uploads[`f_${id}`].sp === uploads[`f_${id}`].upl) {
+            resault = await fh.uploadfile(sh, pid, fname, fsize, uploads[`f_${id}`].filelist);
+        }
+    }
+
+    logger.info('---------uploads---------->', resault);
+
+    if (resault && resault[pid])
+        res.end(`{"code":200,"data":{"menu":${JSON.stringify(resault)}},"msg":"ok"}`);
+    else
+        res.end(`{"code":200,"data":"${order1}-${sp1}","msg":"files uploading"}`);
 });
 
 app.post('/nf', mp, jp, cp, async (req, res) => {

@@ -14,7 +14,7 @@ class Config {
                 }
             },
             upload: {
-                limit: 1024 * 1024 * 100 // 50M
+                limit: 1024 * 1024 * 20 // 50M
             }
         }
     }

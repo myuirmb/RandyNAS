@@ -191,7 +191,7 @@ export function reqUploadFiles(params) {
                         ulprogress: (e, xhr) => { getProgress(dispatch, 'ul1', e, { data: { id: thisid, order: i } }); },
                         success: (res, status, xhr) => {
                             console.log('-----success----->', res);
-                            // dispatch(menuInit(res.data));
+                            if (res.data.menu) dispatch(menuInit(res.data));
                         }
                     });
                     req.send();
@@ -204,7 +204,7 @@ export function reqUploadFiles(params) {
                     ulprogress: (e, xhr) => { getProgress(dispatch, 'ul1', e, { data: { id: thisid, order: 0 } }); },
                     success: (res, status, xhr) => {
                         console.log('-----success----->', res);
-                        // dispatch(menuInit(res.data));
+                        dispatch(menuInit(res.data));
                     }
                 });
                 req.send();

@@ -197,7 +197,7 @@ class fileshelper extends events {
                 break;
         }
 
-        let newid = uuidv4(), stime = new Date().getTime();
+        const newid = uuidv4(), stime = new Date().getTime();
         const irows = await sh.sqlexec({
             sql: 'insert into sys_list(id,fid,pathcode,fpath,fname,fext,fsize,ftype,ftime,stime) values($id,$fid,$pathcode,$fpath,$fname,$fext,$fsize,$ftype,$ftime,$stime);',
             val: [{
@@ -220,32 +220,118 @@ class fileshelper extends events {
             return irows;
     }
 
-    async mergefiles() {
+    async uploadfile(sh, pid, fname, fsize, filelist) {
+        const newid = uuidv4(), ext = path.extname(fname), stime = new Date().getTime();
+        const mf = await this.mergefiles(filelist, newid, ext);
+        this.logger.info('--------upload--file--------->', mf);
+
+        let conn = null, rows = null;
+        if (!sh.conn) conn = await sh.init();
+        rows = await sh.sqlall({
+            sql: `select id,pathcode from sys_list where id=$fid
+            union all
+            select * from (select id,pathcode from sys_list where fid=$fid order by stime desc limit 1)
+            order by pathcode asc;`,
+            val: { $fid: pid }
+        });
+        let fpc = '0', order = 0;
+        switch (rows.length) {
+            // case 0:
+            //     fpc='0';
+            //     order=0;
+            //     break;
+            case 1:
+                if (rows[0].id === pid) {   //child node is null
+                    fpc = rows[0].pathcode;
+                    order = 0;
+                }
+                else {   //one level node
+                    fpc = '0';
+                    const pc = rows[0].pathcode.split('-');
+                    //this.logger.debug('-------order---->',pc[pc.length - 1],global.parseInt(pc[pc.length - 1], 16));
+                    if (pc.length > 1) order = global.parseInt(pc[pc.length - 1], 16) + 1;
+                }
+                break;
+            case 2:
+                if (rows[0].id === pid) {   //line 0 is parent node
+                    fpc = rows[0].pathcode;
+                    const pc = rows[1].pathcode.split('-');
+                    if (pc.length > 1) order = global.parseInt(pc[pc.length - 1], 16) + 1;
+                }
+                else {   //line 1 is parent node
+                    fpc = rows[1].pathcode;
+                    const pc = rows[0].pathcode.split('-');
+                    if (pc.length > 1) order = global.parseInt(pc[pc.length - 1], 16) + 1;
+                }
+                break;
+            default:
+                break;
+        }
+
+        const irows = await sh.sqlexec({
+            sql: 'insert into sys_list(id,fid,pathcode,fpath,fname,fext,fsize,ftype,ftime,stime) values($id,$fid,$pathcode,$fpath,$fname,$fext,$fsize,$ftype,$ftime,$stime);',
+            val: [{
+                $id: newid,
+                $fid: pid,
+                $pathcode: `${fpc}-${order.toString(16)}`,
+                $fpath: mf.fname,
+                $fname: fname,
+                $fext: ext,
+                $fsize: fsize,
+                $ftype: ext,
+                $ftime: stime,
+                $stime: stime
+            }]
+        });
+
+        if (irows.res > 0)
+            return { [pid]: [{ id: newid, fid: pid, fname, ftype: ext, fsize, stime }] };
+        else
+            return irows;
+    }
+
+    async mergefiles(filelist, id, ext) {
         const date = new Date();
         const y = date.getFullYear(), m = date.getMonth(), d = date.getDate();
-        const dir = path.join(this.conf.upl.dir, `y_${y}`, `m_${(m + 1).toString().padStart(2, '0')}`, `d_${d.toString().padStart(2, '0')}`);
-        this.logger.info(dir);
+        const dir = path.join(
+            this.conf.upl.dir,
+            `y_${y}`,
+            `m_${(m + 1).toString().padStart(2, '0')}`,
+            `d_${d.toString().padStart(2, '0')}`
+        );
+        const fname = path.join(dir, `${id}${ext}`);
+
         const status = await this.dirExists(dir);
-
-        const ws = fs.createWriteStream(path.join(dir, `PMO_convert_${uuidv4()}_001.zip`));
-        // ws.addListener('drain', () => { this.logger.info('---------createWriteStream------------->drain'); });
-        ws.addListener('close', () => { this.logger.info('---------createWriteStream------------->close'); });
-        // ws.addListener('error', () => { this.logger.info('---------createWriteStream------------->error'); });
-
-        const filelist = ['R-0GMo5Pi6lw477g6XUtqn1M', 'i0gEcdzKT1zIIQqcpB2F4DFx'];
+        const ws = fs.createWriteStream(fname);
+        ws.addListener('error', () => {
+            this.logger.info('---------createWriteStream------------->error');
+            // return {ret:false,fname};
+        });
+        // ws.addListener('drain', () => {
+        //     this.logger.info('---------createWriteStream------------->drain');
+        // });
+        // ws.addListener('close', () => {
+        //     this.logger.info('---------createWriteStream------------->close');
+        //     // return {ret:true,fname};
+        // });
 
         for (let i = 0; i < filelist.length; i++) {
             this.logger.info(`---------writestream------------->await_${i}`);
             const flag = await this.writestream(filelist[i], ws, (i === filelist.length - 1));
         }
-        this.logger.info('---------createWriteStream------------->close0');
+        this.logger.info(`${filelist.join('-->')} ==> ${fname}`);
+
+        return { fname };
     }
 
-    writestream(fname, ws, end) {
+
+
+    writestream(spname, ws, end) {
         return new Promise((resolve, reject) => {
-            const rs = fs.createReadStream(path.join(this.conf.upl.temp, fname));
+            // const rs = fs.createReadStream(path.join(this.conf.upl.temp, spname));
+            const rs = fs.createReadStream(spname);
             rs.addListener('end', () => {
-                // this.logger.info(`---------createReadStream----${fname}--------->end`);
+                // this.logger.info(`---------createReadStream----${spname}--------->end`);
                 resolve(true)
             });
             rs.pipe(ws, { end });
