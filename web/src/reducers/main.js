@@ -31,10 +31,7 @@ const actions = {
     [CONTENT_SHOW_TYPE]: (state, action) => state.set('showtype', Immutable.fromJS(action.data)),
     [MENU_INIT]: (state, action) => state.mergeDeep(Immutable.fromJS(action.data)),
     [GET_FILES]: (state, action) => state.merge(Immutable.fromJS(action.data)),
-    [UPDATE_PROGRESS]: (state, action) => {
-        // console.log('----------reducers--------->',Immutable.fromJS(action.data));
-        return state.mergeDeep(Immutable.fromJS(action.data))
-    }
+    [UPDATE_PROGRESS]: (state, action) => state.mergeDeep(Immutable.fromJS(action.data))
 };
 
 export default function auth(state = initState, action = {}) {

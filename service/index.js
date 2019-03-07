@@ -27,8 +27,8 @@ const sh = new sqlitehelper();
 
 //-----files-helper-------------------------
 const fh = new fileshelper();
-const privatekey = fh.readfilesync(conf.vfy.rsa.privatekey);
-const publickey = fh.readfilesync(conf.vfy.rsa.publickey);
+const privatekey = fh.readFileSync(conf.vfy.rsa.privatekey);
+const publickey = fh.readFileSync(conf.vfy.rsa.publickey);
 logger.info('----------init-----key-------------->', privatekey, publickey)
 
 //-----auth-helper--------------------------
@@ -51,7 +51,7 @@ app.disable('x-powered-by');
 
 //main 主页
 app.get('/', jp, cp, async (req, res) => {
-    // const allfiles = await fh.readdirsync(
+    // const allfiles = await fh.readDirSync(
     //     sh,
     //     'D:/PMO',
     //     ah.strto(ah.strto(conf.appid)),
@@ -61,7 +61,7 @@ app.get('/', jp, cp, async (req, res) => {
     // res.send(allfiles);
     // res.end();
 
-    // const allfiles = await fh.getfiles(sh, '*.doc');
+    // const allfiles = await fh.getFiles(sh, '*.doc');
     // logger.info('------allfiles------->', allfiles);
 
     // res.setHeader('Content-Type', 'text/plain');
@@ -73,7 +73,7 @@ app.get('/', jp, cp, async (req, res) => {
 });
 
 
-app.post('/init', mp, jp, cp, async (req, res) => {
+app.post('/init', mp,  cp, async (req, res) => {
     const { nas, log } = req.signedCookies;
     let resault = null;
     try {
@@ -93,7 +93,7 @@ app.post('/init', mp, jp, cp, async (req, res) => {
     res.end();
 });
 
-app.post('/login', mp, jp, cp, async (req, res) => {
+app.post('/login', mp, cp, async (req, res) => {
     let resault = null;
     try {
         resault = await ah.login(sh, privatekey, req.body.username, req.body.password, req.body.autologin);
@@ -113,7 +113,7 @@ app.post('/login', mp, jp, cp, async (req, res) => {
     res.end();
 });
 
-app.post('/menu', mp, jp, cp, async (req, res) => {
+app.post('/menu', mp,  cp, async (req, res) => {
     let resault = { menu: null }, pid = ah.strto(ah.strto(conf.appid));
     try {
         logger.info(req.body.pid);
@@ -122,7 +122,7 @@ app.post('/menu', mp, jp, cp, async (req, res) => {
             resault.cid = pid;
             resault.rn = conf.appname;
         }
-        resault.menu = { [pid]: await fh.getmenu(sh, pid) };
+        resault.menu = { [pid]: await fh.getMenu(sh, pid) };
     }
     catch (e) {
         logger.error('menu in error:', e);
@@ -132,11 +132,11 @@ app.post('/menu', mp, jp, cp, async (req, res) => {
     res.end();
 });
 
-app.post('/files', mp, jp, cp, async (req, res) => {
+app.post('/files', mp,  cp, async (req, res) => {
     let allfiles = null;
     try {
         let str = req.body.str ? req.body.str : '';
-        allfiles = await fh.getfiles(sh, str);
+        allfiles = await fh.getFiles(sh, str);
     }
     catch (e) {
         logger.error('files in error:', e);
@@ -146,11 +146,11 @@ app.post('/files', mp, jp, cp, async (req, res) => {
     res.end();
 });
 
-app.post('/dl', mp, jp, cp, async (req, res) => {
+app.post('/dl', mp,  cp, async (req, res) => {
     const id = req.body.id;
     let resault = null;
     try {
-        resault = await fh.downloadfile(sh, id);
+        resault = await fh.downloadFile(sh, id);
     }
     catch (e) {
         logger.error('download in error:', e);
@@ -170,7 +170,7 @@ app.post('/dl', mp, jp, cp, async (req, res) => {
     }
 });
 
-app.post('/ul', mp, jp, cp, async (req, res) => {
+app.post('/ul', mp,  cp, async (req, res) => {
     const pid = req.body.pid,
         id = req.body.id,
         fname = req.body.fname,
@@ -185,7 +185,7 @@ app.post('/ul', mp, jp, cp, async (req, res) => {
 
     let resault = null;
     if (sp1 === 1) {
-        resault = await fh.uploadfile(sh, pid, fname, fsize, [files.files.path]);
+        resault = await fh.uploadFile(sh, pid, fname, fsize, [files.files.path]);
     }
     else if (sp1 > 1) {
         if (!uploads[`f_${id}`]) uploads[`f_${id}`] = { sp: sp1, upl: 0, filelist: [] };
@@ -197,7 +197,7 @@ app.post('/ul', mp, jp, cp, async (req, res) => {
         logger.info('---------uploads--info-------->', uploads);
 
         if (uploads[`f_${id}`].sp === uploads[`f_${id}`].upl) {
-            resault = await fh.uploadfile(sh, pid, fname, fsize, uploads[`f_${id}`].filelist);
+            resault = await fh.uploadFile(sh, pid, fname, fsize, uploads[`f_${id}`].filelist);
         }
     }
 
@@ -209,11 +209,11 @@ app.post('/ul', mp, jp, cp, async (req, res) => {
         res.end(`{"code":200,"data":"${order1}-${sp1}","msg":"files uploading"}`);
 });
 
-app.post('/nf', mp, jp, cp, async (req, res) => {
+app.post('/nf', mp,  cp, async (req, res) => {
     const pid = req.body.pid, foldername = req.body.fn;
     let resault = null;
     try {
-        resault = await fh.newfolder(sh, pid, foldername);
+        resault = await fh.newFolder(sh, pid, foldername);
     }
     catch (e) {
         logger.error('new folder in error:', e);

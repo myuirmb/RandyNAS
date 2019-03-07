@@ -165,18 +165,6 @@ class sqlitehelper {
         });
     }
 
-    // sqlall(so, flag) {
-    //     this.conn.serialize(() => {
-    //         //let res = { res: 0, err: [] };
-    //         let sql = this.conn.all(so.sql, so.val, (err, rows) => {
-    //             if (err) this.logger.error('class method sqlall error:\r\n', err);
-    //             else this.logger.info('class method sqlall okey.\r\n');
-
-    //             this.emit('sqliteres', { res: rows, err: err }, `sqlall_${flag}`);
-    //         });
-    //     });
-    // }
-
     close() {
         return new Promise((resolve, reject) => {
             this.conn.close((err) => {

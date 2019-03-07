@@ -7,7 +7,7 @@ const initState = Immutable.Map({
     un: 'lucy',     //user name
     ut: 'guest',    //user type(guest,user,root)
     gu: true,       //guest true:yes，false:no
-    err: ''          //error message...
+    err: ''         //error message...
 });
 
 const actions = {

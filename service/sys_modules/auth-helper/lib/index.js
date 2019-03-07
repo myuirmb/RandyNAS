@@ -23,7 +23,7 @@ class authhelper extends events {
             un: `guest_${tempid.substr(0, 8)}`,     //user name
             ut: 'guest',                            //user type(guest,user,root)
             gu: true,                               //guest true:false
-            au: Math.ceil(this.conf.vfy.auto / (24 * 60 * 60))
+            au: Math.ceil(this.conf.vfy.auto / (24 * 60 * 60 * 1000))
         };
         let info = {}, ck = null, temp = {}, cf = '';
 
@@ -31,6 +31,7 @@ class authhelper extends events {
             let decoded = null;
             try { decoded = await this.jwtdecode(this.tostr(nas), publickey); }
             catch (e) { this.logger.error('class auth helper verify feild error: ', e); }
+            // this.logger.info('------auth--init--nas------>',decoded,this.tostr(decoded.ud));
             if (decoded) {
                 if (decoded.ut === 'user') {
                     if (this.conf.vfy.auto > 0 || log) {
@@ -60,8 +61,8 @@ class authhelper extends events {
         const token = this.strto(jwt.sign(info, privatekey, { algorithm: 'RS256' }));
         Object.assign(info, { tk: token });
 
-        if (cf === 'nas_clear') ck = { key: 'nas', val: '', attr: { maxAge: -1, httpOnly: true, 'signed': true } };
-        else if (cf === 'nas_guest') ck = { key: 'nas', val: token, attr: { maxAge: 10 * 365 * 24 * 60 * 60, httpOnly: true, 'signed': true } };
+        if (cf === 'nas_clear') ck = { key: 'nas', val: '', attr: { maxAge: 0, httpOnly: true, 'signed': true } };
+        else if (cf === 'nas_guest') ck = { key: 'nas', val: token, attr: { maxAge: 10 * 365 * 24 * 60 * 60 * 1000, httpOnly: true, 'signed': true } };
         return { info, ck };
     }
 

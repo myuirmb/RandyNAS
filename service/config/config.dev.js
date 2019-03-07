@@ -15,7 +15,7 @@ const config = {
 
     vfy: {
         guest: false,
-        auto: 14 * 24 * 60 * 60,    //14*24*60*60
+        auto: 14 * 24 * 60 * 60 * 1000,    //14*24*60*60
         rsa: {
             // publickey: './config/public.key',
             // privatekey: './config/private.key'

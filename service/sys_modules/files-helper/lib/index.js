@@ -18,24 +18,24 @@ class fileshelper extends events {
 
     }
 
-    traverse(fpath) {
+    readDir(fpath) {
         fs.readdir(fpath, (err, files) => {
             if (err) {
                 console.log(err);
-                this.logger.error(`class method traverse fs.readdir is error: ${err}`);
+                this.logger.error(`class method readDir fs.readdir is error: ${err}`);
             }
             else {
                 for (let i = 0, len = files.length; i < len; i++) {
                     let file = path.join(fpath, files[i]);
                     fs.stat(file, (error, stats) => {
                         if (error) {
-                            this.logger.error(`class method traverse fs.stat is error: ${error}`);
+                            this.logger.error(`class method readDir fs.stat is error: ${error}`);
                         }
                         else {
                             let [isfile, isdir] = [stats.isFile(), stats.isDirectory()];
                             this.emit('fileinfo', { fpath, file, isfile, isdir });
                             this.logger.info(`file.info: ${JSON.stringify({ fpath, file, isfile, isdir, stats })}`);
-                            if (isdir) this.traverse(file);
+                            if (isdir) this.readDir(file);
                         }
                     });
                 }
@@ -43,10 +43,36 @@ class fileshelper extends events {
         });
     }
 
-    async readdirsync(sh, fpath, fid, pcode) {
+    readFileSync(fpath) {
+        let fc = null;
+        try {
+            fc = fs.readFileSync(fpath);
+        }
+        catch (err) {
+            this.logger.error(`class method readFileSync fs.readFileSync is error: ${fpath} => ${err} `);
+        }
+        return fc;
+    }
+
+    readFileAsPromise(fpath) {
+        return new Promise((resolve, reject) => {
+            fs.readFile(fpath, (err, data) => {
+                if (err) {
+                    this.logger.error(`class method readFileAsPromise(Promise) fs.readFile is error: ${fpath} => ${err} `);
+                    reject(err);
+                }
+                else {
+                    this.logger.info(`class method readFileAsPromise(Promise) fs.readFile is okey: ${fpath}`);
+                    resolve(data);
+                }
+            });
+        });
+    }
+
+    async readDirSync(sh, fpath, fid, pcode) {
         let files = null;
         try { files = fs.readdirSync(fpath); }
-        catch (err) { this.logger.error(`class method readdirsync fs.readdirSync is error: ${fpath} => ${err} `); }
+        catch (err) { this.logger.error(`class method readDirSync fs.readdirSync is error: ${fpath} => ${err} `); }
         if (files && files.length) {
             let list = [];
             for (let i = 0, len = files.length; i < len; i++) {
@@ -65,46 +91,20 @@ class fileshelper extends events {
                     $ftime: stats.birthtime,
                     $stime: new Date().getTime()
                 });
-                if (stats.isDirectory()) this.readdirsync(sh, file, id, pathcode);
+                if (stats.isDirectory()) this.readDirSync(sh, file, id, pathcode);
             }
-            //this.logger.info('class method readdirsync fs.readdirSync path =>',list);
+            //this.logger.info('class method readDirSync fs.readdirSync path =>',list);
             let shinit = null;
             if (!sh.conn) shinit = await sh.init();
             const rows = await sh.sqlexec({
                 sql: 'insert into sys_list(id,fid,pathcode,fpath,fname,fext,fsize,ftype,ftime,stime) values($id,$fid,$pathcode,$fpath,$fname,$fext,$fsize,$ftype,$ftime,$stime);',
                 val: list
             });
-            this.logger.info('class method readdirsync fs.readdirSync path =>', list, rows);
+            this.logger.info('class method readDirSync fs.readdirSync path =>', list, rows);
         }
     }
 
-    readfilesync(fpath) {
-        let fc = null;
-        try {
-            fc = fs.readFileSync(fpath);
-        }
-        catch (err) {
-            this.logger.error(`class method readfilesync fs.readFileSync is error: ${fpath} => ${err} `);
-        }
-        return fc;
-    }
-
-    readfilep(fpath) {
-        return new Promise((resolve, reject) => {
-            fs.readFile(fpath, (err, data) => {
-                if (err) {
-                    this.logger.error(`class method readfilep(Promise) fs.readFile is error: ${fpath} => ${err} `);
-                    reject(err);
-                }
-                else {
-                    this.logger.info(`class method readfilep(Promise) fs.readFile is okey: ${fpath}`);
-                    resolve(data);
-                }
-            });
-        });
-    }
-
-    async getmenu(sh, fid) {
+    async getMenu(sh, fid) {
         let conn = null, rows = null;
         if (!sh.conn) conn = await sh.init();
         rows = await sh.sqlall({
@@ -114,7 +114,7 @@ class fileshelper extends events {
         return rows;
     }
 
-    async getfiles(sh, str) {
+    async getFiles(sh, str) {
         const sel = str.replace('，', ',').replace('。', '.').split(',');
         let rows = null;
         if (sel.length > 0) {
@@ -137,7 +137,7 @@ class fileshelper extends events {
         return rows;
     }
 
-    async downloadfile(sh, id) {
+    async downloadFile(sh, id) {
         let conn = null, rows = null, rs = null;
         if (!sh.conn) conn = await sh.init();
         rows = await sh.sqlget({
@@ -153,7 +153,7 @@ class fileshelper extends events {
         return { rows, rs };
     }
 
-    async newfolder(sh, pid, foldername) {
+    async newFolder(sh, pid, foldername) {
         let conn = null, rows = null;
         if (!sh.conn) conn = await sh.init();
         rows = await sh.sqlall({
@@ -220,9 +220,9 @@ class fileshelper extends events {
             return irows;
     }
 
-    async uploadfile(sh, pid, fname, fsize, filelist) {
+    async uploadFile(sh, pid, fname, fsize, filelist) {
         const newid = uuidv4(), ext = path.extname(fname), stime = new Date().getTime();
-        const mf = await this.mergefiles(filelist, newid, ext);
+        const mf = await this.mergeFiles(filelist, newid, ext);
         this.logger.info('--------upload--file--------->', mf);
 
         let conn = null, rows = null;
@@ -290,7 +290,7 @@ class fileshelper extends events {
             return irows;
     }
 
-    async mergefiles(filelist, id, ext) {
+    async mergeFiles(filelist, id, ext) {
         const date = new Date();
         const y = date.getFullYear(), m = date.getMonth(), d = date.getDate();
         const dir = path.join(
@@ -317,7 +317,7 @@ class fileshelper extends events {
 
         for (let i = 0; i < filelist.length; i++) {
             this.logger.info(`---------writestream------------->await_${i}`);
-            const flag = await this.writestream(filelist[i], ws, (i === filelist.length - 1));
+            const flag = await this.writeStream(filelist[i], ws, (i === filelist.length - 1));
         }
         this.logger.info(`${filelist.join('-->')} ==> ${fname}`);
 
@@ -325,8 +325,7 @@ class fileshelper extends events {
     }
 
 
-
-    writestream(spname, ws, end) {
+    writeStream(spname, ws, end) {
         return new Promise((resolve, reject) => {
             // const rs = fs.createReadStream(path.join(this.conf.upl.temp, spname));
             const rs = fs.createReadStream(spname);
@@ -339,10 +338,7 @@ class fileshelper extends events {
     }
 
 
-    /**
-     * 读取路径信息
-     * @param {string} path 路径
-     */
+
     getStat(path) {
         return new Promise((resolve, reject) => {
             fs.stat(path, (err, stats) => {
@@ -355,10 +351,7 @@ class fileshelper extends events {
         })
     }
 
-    /**
-     * 创建路径
-     * @param {string} dir 路径
-     */
+
     mkdir(dir) {
         return new Promise((resolve, reject) => {
             fs.mkdir(dir, err => {
@@ -371,10 +364,6 @@ class fileshelper extends events {
         })
     }
 
-    /**
-     * 路径是否存在，不存在则创建
-     * @param {string} dir 路径
-     */
     async dirExists(dir) {
         let isExists = await this.getStat(dir);
         //如果该路径且不是文件，返回true
@@ -392,55 +381,6 @@ class fileshelper extends events {
             mkdirStatus = await this.mkdir(dir);
         }
         return mkdirStatus;
-    }
-
-
-
-    readdirp(fpath) {
-        return new Promise((resolve, reject) => {
-            fs.readdir(fpath, (err, files) => {
-                if (err) {
-                    //this.logger.error(`class method readdirp fs.readdir is error: ${err}`);
-                    //reject(err);
-                }
-                else {
-                    this.logger.info(`class method readdirp fs.readdir is : ${JSON.stringify(files)}`);
-                    resolve(files);
-                }
-            });
-        });
-    }
-
-    statp(file) {
-        return new Promise((resolve, reject) => {
-            fs.stat(file, (err, stats) => {
-                if (err) {
-                    this.logger.error(`class method statp fs.stat is error: ${err}`);
-                    reject(err);
-                }
-                else {
-                    this.logger.info(`class method statp fs.stat is : ${JSON.stringify(stats)}`);
-                    resolve(stats);
-                }
-            });
-        });
-    }
-
-    getdir(fpath) {
-        return this.statp(fpath).then(stats => {
-            if (stats.isDirectory()) {
-                return this.readdirp(fpath).then(
-                    files => Promise.all(
-                        files.map(
-                            file => this.readdirp(path.resolve(fpath, file))
-                        )
-                    )
-                ).then(list => [].concat(...list));
-            }
-            else {
-                return fpath;
-            }
-        });
     }
 
 }
