@@ -5,7 +5,7 @@ const log4js = require('log4js');
 const uuidv4 = require('uuid/v4');
 const config = require('../../../config');
 
-class fileshelper extends events {
+class filesHelper extends events {
     constructor() {
         super();
 
@@ -385,4 +385,4 @@ class fileshelper extends events {
 
 }
 
-module.exports = fileshelper;
+module.exports = filesHelper;

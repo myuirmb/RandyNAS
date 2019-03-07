@@ -7,7 +7,7 @@ const uuidv4 = require('uuid/v4');
 
 const config = require('../../../config');
 
-class authhelper extends events {
+class authHelper extends events {
     constructor() {
         super();
         this.conf = config();
@@ -17,7 +17,7 @@ class authhelper extends events {
     }
 
     async init(sh, nas, log, privatekey, publickey) {
-        const tempid = this.strto(uuidv4());
+        const tempid = this.strTo(uuidv4());
         const initinfo = {
             ud: tempid,
             un: `guest_${tempid.substr(0, 8)}`,     //user name
@@ -29,9 +29,9 @@ class authhelper extends events {
 
         if (nas) {
             let decoded = null;
-            try { decoded = await this.jwtdecode(this.tostr(nas), publickey); }
+            try { decoded = await this.jwtDecode(this.toStr(nas), publickey); }
             catch (e) { this.logger.error('class auth helper verify feild error: ', e); }
-            // this.logger.info('------auth--init--nas------>',decoded,this.tostr(decoded.ud));
+            // this.logger.info('------auth--init--nas------>',decoded,this.toStr(decoded.ud));
             if (decoded) {
                 if (decoded.ut === 'user') {
                     if (this.conf.vfy.auto > 0 || log) {
@@ -39,9 +39,9 @@ class authhelper extends events {
                         if (!sh.conn) conn = await sh.init();
                         rows = await sh.sqlget({
                             sql: 'select * from sys_user where id=$id;',
-                            val: { $id: this.tostr(decoded.ud) }
+                            val: { $id: this.toStr(decoded.ud) }
                         });
-                        if (rows) Object.assign(temp, { ud: this.strto(rows.id), un: rows.username, ut: 'user' });
+                        if (rows) Object.assign(temp, { ud: this.strTo(rows.id), un: rows.username, ut: 'user' });
                         else cf = 'nas_clear';
                     }
                     else {
@@ -58,7 +58,7 @@ class authhelper extends events {
         }
 
         Object.assign(info, initinfo, temp, { gu: this.conf.vfy.guest });
-        const token = this.strto(jwt.sign(info, privatekey, { algorithm: 'RS256' }));
+        const token = this.strTo(jwt.sign(info, privatekey, { algorithm: 'RS256' }));
         Object.assign(info, { tk: token });
 
         if (cf === 'nas_clear') ck = { key: 'nas', val: '', attr: { maxAge: 0, httpOnly: true, 'signed': true } };
@@ -80,14 +80,14 @@ class authhelper extends events {
         });
 
         if (row) {
-            if (this.tosha1(password, row.id) === row.password) {
+            if (this.toSha1(password, row.id) === row.password) {
                 const userinfo = {
-                    ud: this.strto(row.id),
+                    ud: this.strTo(row.id),
                     un: username,                           //user name
                     ut: 'user',                             //user type(guest,user,root)
                     gu: this.conf.vfy.guest                 //guest true:支持匿名登录，false:不支持匿名登录 
                 };
-                const token = this.strto(jwt.sign(userinfo, privatekey, { algorithm: 'RS256' }));
+                const token = this.strTo(jwt.sign(userinfo, privatekey, { algorithm: 'RS256' }));
                 Object.assign(info = {}, userinfo, { tk: token });
 
                 ck = {
@@ -101,38 +101,38 @@ class authhelper extends events {
     }
 
 
-    jwtdecode(token, publickey) {
+    jwtDecode(token, publickey) {
         return new Promise((resolve, reject) => {
             jwt.verify(token, publickey, (err, decoded) => {
                 if (err) {
-                    this.logger.error('class auth helper jwtdecode jwt.verify feild error: ', err);
+                    this.logger.error('class auth helper jwtDecode jwt.verify feild error: ', err);
                     reject(null);
                 }
                 else {
-                    this.logger.info('class auth helper jwtdecode jwt.verify feild okey:', decoded);
+                    this.logger.info('class auth helper jwtDecode jwt.verify feild okey:', decoded);
                     resolve(decoded);
                 }
             });
         });
     }
 
-    tomd5(data, salt = '') {
+    toMd5(data, salt = '') {
         const md5 = crypto.createHash('md5');
-        this.logger.info(`${this.conf.appid}@${this.strto(this.conf.seq.a)}_${this.strto(salt)}:${data}`);
-        return md5.update(`${this.conf.appid}@${this.strto(this.conf.seq.a)}_${this.strto(salt)}:${data}`).digest('hex');
+        this.logger.info(`${this.conf.appid}@${this.strTo(this.conf.seq.a)}_${this.strTo(salt)}:${data}`);
+        return md5.update(`${this.conf.appid}@${this.strTo(this.conf.seq.a)}_${this.strTo(salt)}:${data}`).digest('hex');
     }
 
-    tosha1(data, salt = '') {
+    toSha1(data, salt = '') {
         const sha1 = crypto.createHash('sha1');
-        return sha1.update(`${this.conf.appid}@${this.strto(this.conf.seq.a)}_${this.strto(salt)}:${data}`).digest('hex');
+        return sha1.update(`${this.conf.appid}@${this.strTo(this.conf.seq.a)}_${this.strTo(salt)}:${data}`).digest('hex');
     }
 
-    tosha512(data, salt = '') {
+    toSha512(data, salt = '') {
         const sha512 = crypto.createHash('sha512');
-        return sha512.update(`${this.conf.appid}@${this.strto(this.conf.seq.a)}_${this.strto(salt)}:${data}`).digest('hex');
+        return sha512.update(`${this.conf.appid}@${this.strTo(this.conf.seq.a)}_${this.strTo(salt)}:${data}`).digest('hex');
     }
 
-    tostr(data) {
+    toStr(data) {
         let redata = '';
         const seqn = config().seq.n;
         if (data && typeof data === 'string') {
@@ -151,11 +151,11 @@ class authhelper extends events {
         else {
             redata = data;
         }
-        // this.logger.info(`${data} ==tostr==> ${redata}`);
+        // this.logger.info(`${data} ==toStr==> ${redata}`);
         return redata;
     }
 
-    strto(data = '') {
+    strTo(data = '') {
         let redata = '';
         const seqn = config().seq.n;
         if (data && typeof data === 'string') {
@@ -167,10 +167,10 @@ class authhelper extends events {
         else {
             redata = data;
         }
-        // this.logger.info(`${data} ==strto==> ${redata}`);
+        // this.logger.info(`${data} ==strTo==> ${redata}`);
         return redata;
     }
 
 }
 
-module.exports = authhelper;
+module.exports = authHelper;

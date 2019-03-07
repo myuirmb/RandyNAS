@@ -4,8 +4,8 @@ const log4js = require('log4js');
 const uuidv4 = require('uuid/v4');
 const config = require('../../../config');
 
-//class sqlitehelper extends events {
-class sqlitehelper {
+//class sqlite3Helper extends events {
+class sqlite3Helper {
     constructor() {
         //super();
 
@@ -181,4 +181,4 @@ class sqlitehelper {
     }
 }
 
-module.exports = sqlitehelper;
+module.exports = sqlite3Helper;

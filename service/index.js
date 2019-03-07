@@ -9,9 +9,9 @@ const log4js = require('log4js');
 const uuidv4 = require('uuid/v4');
 
 const config = require('./config');
-const sqlitehelper = require('./sys_modules/sqlite3-helper');
-const fileshelper = require('./sys_modules/files-helper');
-const authhelper = require('./sys_modules/auth-helper');
+const sqlite3Helper = require('./sys_modules/sqlite3-helper');
+const filesHelper = require('./sys_modules/files-helper');
+const authHelper = require('./sys_modules/auth-helper');
 
 //-----config-------------------------------
 const conf = config();
@@ -23,16 +23,16 @@ log4js.configure(config(1));
 const logger = log4js.getLogger('index');
 
 //-----sqlite-helper------------------------
-const sh = new sqlitehelper();
+const sh = new sqlite3Helper();
 
 //-----files-helper-------------------------
-const fh = new fileshelper();
+const fh = new filesHelper();
 const privatekey = fh.readFileSync(conf.vfy.rsa.privatekey);
 const publickey = fh.readFileSync(conf.vfy.rsa.publickey);
 logger.info('----------init-----key-------------->', privatekey, publickey)
 
 //-----auth-helper--------------------------
-const ah = new authhelper();
+const ah = new authHelper();
 
 //-----http-------------------------------------------------------------------------
 const app = express();
@@ -54,7 +54,7 @@ app.get('/', jp, cp, async (req, res) => {
     // const allfiles = await fh.readDirSync(
     //     sh,
     //     'D:/PMO',
-    //     ah.strto(ah.strto(conf.appid)),
+    //     ah.strTo(ah.strTo(conf.appid)),
     //     '0'
     // );
     // res.setHeader('Content-Type', 'text/plain');
@@ -114,7 +114,7 @@ app.post('/login', mp, cp, async (req, res) => {
 });
 
 app.post('/menu', mp,  cp, async (req, res) => {
-    let resault = { menu: null }, pid = ah.strto(ah.strto(conf.appid));
+    let resault = { menu: null }, pid = ah.strTo(ah.strTo(conf.appid));
     try {
         logger.info(req.body.pid);
         if (req.body.pid) { pid = req.body.pid; }
