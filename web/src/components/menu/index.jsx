@@ -27,7 +27,7 @@ class Menu extends Component {
                     for (let i = 0, len = dt_rm_01.aNodes.length; i < len; i++) {
                         // console.log('------dt_rm_01.aNodes[i].id------->', dt_rm_01.aNodes[i].id);
                         // console.log('====>', v.get(j).get('id') === dt_rm_01.aNodes[i].id);
-                        if (v.get(j).get('ftype') !== 'folder' || v.get(j).get('id') === dt_rm_01.aNodes[i].id) {
+                        if (v.get(j).get('fext') !== 'folder' || v.get(j).get('id') === dt_rm_01.aNodes[i].id) {
                             flag = false;
                             break;
                         }
@@ -54,7 +54,7 @@ class Menu extends Component {
                 dt_rm_01.add(cid, -1, rn, '0');
                 nodelist.map((v, k) => {
                     for (let i = 0, len = v.size; i < len; i++) {
-                        if (v.get(i).get('ftype') === 'folder') {
+                        if (v.get(i).get('fext') === 'folder') {
                             dt_rm_01.add(
                                 v.get(i).get('id'),
                                 v.get(i).get('fid'),

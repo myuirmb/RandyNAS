@@ -33,7 +33,6 @@ class Content extends Component {
         }
     }
 
-
     formatDate(timestamp) {
         const d = new Date(timestamp);
         const year = d.getFullYear(),
@@ -45,7 +44,7 @@ class Content extends Component {
         return `${year}-${month}-${date} ${hour}:${minute}:${second}`;
     }
 
-    nodeClick(id, fname, ftype, fsize) {
+    nodeClick(id, fname, ftype, fsize, fsplit) {
         const { gm, dlf } = this.props;
         if (ftype === 'folder') {
             gm(id);
@@ -63,7 +62,7 @@ class Content extends Component {
             if (showtype === 'block') {
                 for (let i = 0, len = nodelist.size; i < len; i++) {
                     let icon = theme.other;
-                    switch (nodelist.get(i).get('ftype')) {
+                    switch (nodelist.get(i).get('fext')) {
                         case 'folder':
                             icon = theme.folder;
                             break;
@@ -105,6 +104,7 @@ class Content extends Component {
                         case '.xml':
                             icon = theme.xml;
                             break;
+                        case '.htm':
                         case '.html':
                             icon = theme.html;
                             break;
@@ -124,8 +124,9 @@ class Content extends Component {
                             this,
                             nodelist.get(i).get('id'),
                             nodelist.get(i).get('fname'),
-                            nodelist.get(i).get('ftype'),
-                            nodelist.get(i).get('fsize')
+                            nodelist.get(i).get('fext'),
+                            nodelist.get(i).get('fsize'),
+                            nodelist.get(i).get('fsplit')
                         )}
                     >
                         <div><img src={icon} /></div>
@@ -136,7 +137,7 @@ class Content extends Component {
             else if (showtype === 'list') {
                 for (let i = 0, len = nodelist.size; i < len; i++) {
                     let icon = theme.other;
-                    switch (nodelist.get(i).get('ftype')) {
+                    switch (nodelist.get(i).get('fext')) {
                         case 'folder':
                             icon = theme.folder;
                             break;
@@ -178,6 +179,7 @@ class Content extends Component {
                         case '.xml':
                             icon = theme.xml;
                             break;
+                        case '.htm':
                         case '.html':
                             icon = theme.html;
                             break;
@@ -195,8 +197,9 @@ class Content extends Component {
                                 this,
                                 nodelist.get(i).get('id'),
                                 nodelist.get(i).get('fname'),
-                                nodelist.get(i).get('ftype'),
-                                nodelist.get(i).get('fsize')
+                                nodelist.get(i).get('fext'),
+                                nodelist.get(i).get('fsize'),
+                                nodelist.get(i).get('fsplit')
                             )}
                             >
                                 <img src={icon} />
@@ -204,7 +207,7 @@ class Content extends Component {
                             <div>{nodelist.get(i).get('fname')}</div>
                             <div>
                                 {
-                                    nodelist.get(i).get('ftype') !== 'folder' ?
+                                    nodelist.get(i).get('fext') !== 'folder' ?
                                         `${(nodelist.get(i).get('fsize') / (1024 * 1024)).toFixed(2)} MB`
                                         : ''
                                 }

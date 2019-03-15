@@ -95,9 +95,9 @@ class Main extends Component {
         dispatch(reqGetFiles({ data: { str } }));
     }
 
-    downloadFile(id, fname, ftype, fsize) {
+    downloadFile(id, fname, ftype, fsize, fsplit) {
         const { dispatch } = this.props;
-        dispatch(reqDownloadFile({ data: { id, fname, ftype, fsize } }));
+        dispatch(reqDownloadFile({ data: { id, fname, ftype, fsize, fsplit } }));
     }
 
     setShowType(types) {

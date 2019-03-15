@@ -9,7 +9,7 @@ class Config {
                     menu: '/menu',
                     files: '/files',
                     download: '/dl',
-                    upload: '/ul',
+                    upload: '/ul1',
                     newfolder: '/nf'
                 }
             },

@@ -108,7 +108,7 @@ class filesHelper extends events {
         let conn = null, rows = null;
         if (!sh.conn) conn = await sh.init();
         rows = await sh.sqlall({
-            sql: 'select id,fid,fname,ftype,fsize,stime from sys_list where fid=$fid order by ftype desc,fname asc;',
+            sql: 'select id,fid,fname,fext,fsize,fsplit,stime from sys_list where fid=$fid order by fext desc,fname asc;',
             val: { $fid: fid }
         });
         return rows;
@@ -129,7 +129,7 @@ class filesHelper extends events {
                 let conn = null;
                 if (!sh.conn) conn = await sh.init();
                 rows = await sh.sqlall({
-                    sql: `select id,fid,fname,ftype,fsize,stime from sys_list where ${ws} order by ftype desc,fname asc;`,
+                    sql: `select id,fid,fname,fext,fsize,fsplit,stime from sys_list where ${ws} order by fext desc,fname asc;`,
                     val
                 });
             }
@@ -148,6 +148,40 @@ class filesHelper extends events {
         if (rows && rows.ftype !== 'folder') {
             if (fs.existsSync(rows.fpath)) {
                 rs = fs.createReadStream(rows.fpath);
+            }
+        }
+        return { rows, rs };
+    }
+
+    async downloadFile(sh, id) {
+        let conn = null, rows = null, rs = null;
+        if (!sh.conn) conn = await sh.init();
+        rows = await sh.sqlget({
+            sql: `select id,fpath,fname,ftype,fsize from sys_list where id=$id`,
+            val: { $id: id }
+        });
+        // this.logger.info('------download---file-->', id, rows);
+        if (rows && rows.ftype !== 'folder') {
+            if (fs.existsSync(rows.fpath)) {
+                rs = fs.createReadStream(rows.fpath);
+            }
+        }
+        return { rows, rs };
+    }
+
+    async downloadFile1(sh, id, forder) {
+        let conn = null, rows = null, rs = null;
+        if (!sh.conn) conn = await sh.init();
+        rows = await sh.sqlget({
+            sql: `select a.id,a.fname,a.fext,a.fsize,a.ftype,a.fsplit,b.fpath,b.forder,b.fsize as spfsize from 
+            sys_list a left join sys_file_list b on a.id=b.fid 
+            where a.id=$id and b.forder=$forder`,
+            val: { $id: id, $forder: forder }
+        });
+        // this.logger.info('------download---file-->', id, rows);
+        if (rows && rows.fext !== 'folder') {
+            if (fs.existsSync(rows.fpath)) {
+                rs = fs.createReadStream(path.join(this.conf.upl.dir, rows.fpath));
             }
         }
         return { rows, rs };
@@ -199,23 +233,21 @@ class filesHelper extends events {
 
         const newid = uuidv4(), stime = new Date().getTime();
         const irows = await sh.sqlexec({
-            sql: 'insert into sys_list(id,fid,pathcode,fpath,fname,fext,fsize,ftype,ftime,stime) values($id,$fid,$pathcode,$fpath,$fname,$fext,$fsize,$ftype,$ftime,$stime);',
+            sql: 'insert into sys_list(id,fid,pathcode,fname,fext,ftype,fsplit,stime) values($id,$fid,$pathcode,$fname,$fext,$ftype,$fsplit,$stime);',
             val: [{
                 $id: newid,
                 $fid: pid,
                 $pathcode: `${fpc}-${order.toString(16)}`,
-                $fpath: '0',
                 $fname: foldername,
-                $fext: '',
-                $fsize: 0,
+                $fext: 'folder',
                 $ftype: 'folder',
-                $ftime: stime,
+                $fsplit: 0,
                 $stime: stime
             }]
         });
 
         if (irows.res > 0)
-            return { [pid]: [{ id: newid, fid: pid, fname: foldername, ftype: 'folder', fsize: 0, stime }] };
+            return { [pid]: [{ id: newid, fid: pid, fname: foldername, fext: 'folder', fsize: 0, fsplit: 0, stime }] };
         else
             return irows;
     }
@@ -324,7 +356,6 @@ class filesHelper extends events {
         return { fname };
     }
 
-
     writeStream(spname, ws, end) {
         return new Promise((resolve, reject) => {
             // const rs = fs.createReadStream(path.join(this.conf.upl.temp, spname));
@@ -337,6 +368,111 @@ class filesHelper extends events {
         });
     }
 
+
+    async uploadFile1(sh, pid, fname, fsize, ftype, fsplit, filelist) {
+        const newid = uuidv4(), ext = path.extname(fname), stime = new Date().getTime();
+        const cf = await this.cutFiles(newid, filelist);
+
+        let conn = null, rows = null;
+        if (!sh.conn) conn = await sh.init();
+        rows = await sh.sqlall({
+            sql: `select id,pathcode from sys_list where id=$fid
+            union all
+            select * from (select id,pathcode from sys_list where fid=$fid order by stime desc limit 1)
+            order by pathcode asc;`,
+            val: { $fid: pid }
+        });
+        let fpc = '0', order = 0;
+        switch (rows.length) {
+            // case 0:
+            //     fpc='0';
+            //     order=0;
+            //     break;
+            case 1:
+                if (rows[0].id === pid) {   //child node is null
+                    fpc = rows[0].pathcode;
+                    order = 0;
+                }
+                else {   //one level node
+                    fpc = '0';
+                    const pc = rows[0].pathcode.split('-');
+                    //this.logger.debug('-------order---->',pc[pc.length - 1],global.parseInt(pc[pc.length - 1], 16));
+                    if (pc.length > 1) order = global.parseInt(pc[pc.length - 1], 16) + 1;
+                }
+                break;
+            case 2:
+                if (rows[0].id === pid) {   //line 0 is parent node
+                    fpc = rows[0].pathcode;
+                    const pc = rows[1].pathcode.split('-');
+                    if (pc.length > 1) order = global.parseInt(pc[pc.length - 1], 16) + 1;
+                }
+                else {   //line 1 is parent node
+                    fpc = rows[1].pathcode;
+                    const pc = rows[0].pathcode.split('-');
+                    if (pc.length > 1) order = global.parseInt(pc[pc.length - 1], 16) + 1;
+                }
+                break;
+            default:
+                break;
+        }
+
+        const frows = await sh.sqlexec({
+            sql: 'insert into sys_file_list(id,fid,fpath,fsize,forder,stime) values($id,$fid,$fpath,$fsize,$forder,$stime);',
+            val: cf
+        });
+        const irows = await sh.sqlexec({
+            sql: 'insert into sys_list(id,fid,pathcode,fname,fext,fsize,ftype,fsplit,stime) values($id,$fid,$pathcode,$fname,$fext,$fsize,$ftype,$fsplit,$stime);',
+            val: [{
+                $id: newid,
+                $fid: pid,
+                $pathcode: `${fpc}-${order.toString(16)}`,
+                $fname: fname,
+                $fext: ext,
+                $fsize: fsize,
+                $ftype: ftype,
+                $fsplit: fsplit,
+                $stime: stime
+            }]
+        });
+
+        if (irows.res > 0)
+            return { [pid]: [{ id: newid, fid: pid, fname, fext: ext, fsize, fsplit, stime }] };
+        else
+            return irows;
+    }
+
+    async cutFiles(fid, filelist) {
+        let res = [];
+
+        const date = new Date();
+        const y = date.getFullYear(), m = date.getMonth(), d = date.getDate();
+        const rd = path.join(   //relative dir
+            `y_${y}`,
+            `m_${(m + 1).toString().padStart(2, '0')}`,
+            `d_${d.toString().padStart(2, '0')}`,
+            (filelist.length === 1 ? '' : `f_${fid}`)
+        );
+        const status = await this.dirExists(path.join(this.conf.upl.dir, rd));
+
+        for (let i = 0; i < filelist.length; i++) {
+            const op = filelist[i].path,
+                rp = path.join(rd, path.basename(op)),
+                stime = new Date().getTime();
+
+            const cutflag = await this.renameFile(op, path.join(this.conf.upl.dir, rp));
+            res.push({ $id: uuidv4(), $fid: fid, $fpath: rp, $fsize: filelist[i].size, $forder: i, $stime: stime });
+        }
+        return res;
+    }
+
+    renameFile(op, np) {
+        return new Promise((resolve, reject) => {
+            fs.rename(op, np, (err) => {
+                if (err) reject(err);
+                resolve(true);
+            });
+        });
+    }
 
 
     getStat(path) {

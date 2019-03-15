@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { Button } from 'antd';
+
 import PropTypes from 'prop-types';
 
 class TopBar extends Component {
@@ -21,9 +23,9 @@ class TopBar extends Component {
         // this.showTypeClick=this.showTypeClick.bind(this);
     }
 
-    uploadClick(){
-        const {uf}=this.props;
-        const files=this.refs.ulfiles.files;
+    uploadClick() {
+        const { uf } = this.props;
+        const files = this.refs.ulfiles.files;
         uf(files);
     }
 
@@ -80,6 +82,10 @@ class TopBar extends Component {
             <div>13123</div>
             <div>
                 <div>
+                    <div>
+                        {/* <Button type="primary" shape="circle" icon="download" size="small" /> */}
+                        <Button type="primary" size="small" >Hello</Button>
+                    </div>
                     <div>
                         <input type='file' multiple ref='ulfiles' placeholder='choose files...' />
                         <input type='button' value='Upload' onClick={this.uploadClick} />

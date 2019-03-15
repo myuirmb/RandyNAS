@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const htmlwebpackplugin = require('html-webpack-plugin');
 const extracttextwebpackplugin = require('extract-text-webpack-plugin');
+const babelpluginimport = require('babel-plugin-import');
 
 const config = {
     devtool: 'source-map',
@@ -22,16 +23,36 @@ const config = {
 
     module: {
         rules: [
+            // {
+            //     test: /\.(js|jsx)$/,
+            //     exclude: /node_modules/,
+            //     use: {
+            //         loader: 'babel-loader'
+            //         // ,  //this connect fail
+            //         // options: {
+            //         //     presets: ['env', 'react']
+            //         // }
+
+            //         // options: {
+            //         //     plugins: [['import', {
+            //         //         libraryName: 'antd',
+            //         //         style: true
+            //         //     }]]
+            //         // }
+
+
+            //     }
+            // },
             {
                 test: /\.(js|jsx)$/,
-                exclude: /node_modules/,
-                use: {
-                    loader: 'babel-loader'
-                    // ,  //this connect fail
-                    // options: {
-                    //     presets: ['env', 'react']
-                    // }
-                }
+                // exclude: /node_modules/,
+                loader: 'babel-loader',
+                // query: {
+                //     plugins: [
+                //         ['import', [{ libraryName: "antd", style: 'css' }]],
+                //     ],
+                //     cacheDirectory: true
+                // }
             },
             {
                 test: /\.css$/,
@@ -39,7 +60,7 @@ const config = {
                 // use: [
                 //     'style-loader',
                 //     'css-loader'
-                // ]
+                // ],
                 use: extracttextwebpackplugin.extract({
                     fallback: 'style-loader',
                     use: 'css-loader'
@@ -94,6 +115,7 @@ const config = {
             // }
         }),
         new extracttextwebpackplugin('./index.css')
+        // new babelpluginimport('*.jsx',{ libraryName: 'antd', style: 'css' })
     ],
 
     devServer: {
