@@ -176,7 +176,7 @@ app.post('/dl', mp, async (req, res) => {
 });
 
 app.post('/dl1', mp, async (req, res) => {
-    const id = req.body.id, fo = req.body.fo;
+    const id = req.body.id, fo = req.body.fo;   //fo:forder,forder/fsplit
     let resault = null;
     try {
         resault = await fh.downloadFile1(sh, id, fo);

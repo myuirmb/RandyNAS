@@ -8,7 +8,7 @@ class Config {
                     login: '/login',
                     menu: '/menu',
                     files: '/files',
-                    download: '/dl',
+                    download: '/dl1',
                     upload: '/ul1',
                     newfolder: '/nf'
                 }

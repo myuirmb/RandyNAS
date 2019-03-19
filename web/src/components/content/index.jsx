@@ -51,7 +51,7 @@ class Content extends Component {
         }
         else {
             // console.log('------content--ondeclick---id----ftype------>', id, ftype);
-            dlf(id, fname, ftype, fsize);
+            dlf(id, fname, ftype, fsize, fsplit);
         }
     }
 

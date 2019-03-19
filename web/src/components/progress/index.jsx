@@ -36,8 +36,8 @@ class Progress extends React.Component {
                 <div key={key} className='progress-dl'>
                     <div>{this.gropress(item.get('ps'))}</div>
                     {
-                        item.get('bl') ?
-                            <div><a id={`dl_${key}`} href={item.get('bl')} download={item.get('fn')}>{item.get('fn')}</a></div>
+                        item.get('bloburl') ?
+                            <div><a id={`dl_${key}`} href={item.get('bloburl')} download={item.get('fn')}>{item.get('fn')}</a></div>
                             : <div>{item.get('fn')}</div>
                     }
                 </div>
@@ -89,7 +89,8 @@ class Progress extends React.Component {
 
         if (prog && prog.get('dl')) {
             prog.get('dl').map((item, key) => {
-                if (!this.state[key] && item.get('bl') && document.getElementById(`dl_${key}`)) {
+                if (!this.state[key] && item.get('bloburl') && document.getElementById(`dl_${key}`)) {
+                    // console.log('aaaaaa-->', item.get('bl'));
                     this.state[key] = true;
                     document.getElementById(`dl_${key}`).click();
                 }
@@ -106,7 +107,7 @@ class Progress extends React.Component {
         const du = Immutable.Map({}).merge(download, upload);
 
         let dup = 0, styletop = 0;
-        if (download||upload) {
+        if (download || upload) {
             let loadeds = 0, totals = 0;
             du.map((item, key) => {
                 let thisloadeds = 0, thistotals = 0, thisflag = false;

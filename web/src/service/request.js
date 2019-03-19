@@ -47,7 +47,7 @@ class Request extends Events {
     }
 
     prog(e) {
-        // console.log(e);
+        // console.log('request.prog',e);
         this.emit('progress', e, this.xhr);
     }
 

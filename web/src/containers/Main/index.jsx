@@ -14,6 +14,7 @@ import {
     reqMenuInit,
     reqGetFiles,
     reqDownloadFile,
+    reqDownloadFile1,
     reqNewFolder
 } from '../../actions/main';
 
@@ -97,7 +98,8 @@ class Main extends Component {
 
     downloadFile(id, fname, ftype, fsize, fsplit) {
         const { dispatch } = this.props;
-        dispatch(reqDownloadFile({ data: { id, fname, ftype, fsize, fsplit } }));
+        // dispatch(reqDownloadFile({ data: { id, fname, ftype, fsize, fsplit } }));
+        dispatch(reqDownloadFile1({ data: { id, fname, ftype, fsize, fsplit } }));
     }
 
     setShowType(types) {

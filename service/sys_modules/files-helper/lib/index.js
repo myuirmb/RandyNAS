@@ -173,15 +173,16 @@ class filesHelper extends events {
         let conn = null, rows = null, rs = null;
         if (!sh.conn) conn = await sh.init();
         rows = await sh.sqlget({
-            sql: `select a.id,a.fname,a.fext,a.fsize,a.ftype,a.fsplit,b.fpath,b.forder,b.fsize as spfsize from 
+            sql: `select a.id,a.fname,a.fext,a.ftype,a.fsplit,b.fpath,b.forder,b.fsize from 
             sys_list a left join sys_file_list b on a.id=b.fid 
             where a.id=$id and b.forder=$forder`,
             val: { $id: id, $forder: forder }
         });
         // this.logger.info('------download---file-->', id, rows);
         if (rows && rows.fext !== 'folder') {
-            if (fs.existsSync(rows.fpath)) {
-                rs = fs.createReadStream(path.join(this.conf.upl.dir, rows.fpath));
+            const fp = path.join(this.conf.upl.dir, rows.fpath);
+            if (fs.existsSync(fp)) {
+                rs = fs.createReadStream(fp);
             }
         }
         return { rows, rs };

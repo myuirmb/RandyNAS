@@ -116,7 +116,7 @@ export function reqDownloadFile(params) {
     return (dispatch, getState) => {
         const conf = new Config();
         const opt = conf.init('download', getState);
-        const req = new Request({ ...opt, dataType: 'blob', data: { id: params.data.id } });
+        const req = new Request({ ...opt, dataType: 'blob', data: { id: params.data.id, } });
         // req.on('success', (res, status, xhr) => {
         //     // console.log(res);
         //     // console.log(xhr.getAllResponseHeaders());
@@ -164,6 +164,45 @@ export function reqDownloadFile(params) {
         req.send();
     }
 }
+
+
+export function reqDownloadFile1(params) {
+    return (dispatch, getState) => {
+        const conf = new Config();
+        const opt = conf.init('download', getState);
+
+        let af = { sp: params.data.fsplit, bs: [] }, bloburl = null;
+        let percent = 100, lastpercent = 0;
+        if (params.data.fsplit > 1) {
+            percent = Math.floor((1 / params.data.fsplit) * 100);
+            lastpercent = 100 - (percent * (params.data.fsplit - 1));
+        }
+        for (let i = 0; i < params.data.fsplit; i++) {
+            const req = new Request({ ...opt, dataType: 'blob', data: { id: params.data.id, fo: i } });
+            req.on({
+                before: (e, xhr) => {
+                    getProgress(dispatch, 'dl0', e, { data: { id: params.data.id, fname: params.data.fname, order: i, percent: (i < params.data.fsplit - 1 ? percent : lastpercent) } });
+                },
+                progress: (e, xhr) => {
+                    getProgress(dispatch, 'dl1', e, { data: { id: params.data.id, order: i } });
+                },
+                success: (res, status, xhr) => {
+                    af.sp--;
+                    af.bs[i] = new Blob([res]);
+                    if (af.sp === 0) {
+                        const URL = window.URL || window.webkitURL;
+                        const blob = new Blob(af.bs);
+                        bloburl = URL.createObjectURL(blob);
+                    }
+                    getProgress(dispatch, 'dl2', null, { data: { id: params.data.id, order: i, bloburl } });
+                }
+            });
+            req.send();
+        }
+    }
+}
+
+
 
 export function reqUploadFiles(params) {
     return (dispatch, getState) => {
@@ -245,9 +284,9 @@ export function getProgress(dispatch, type, event, params) {
                         dl: {
                             [params.data.id]: {
                                 fn: params.data.fname,
-                                bl: '',
+                                // bloburl,
                                 ps: {
-                                    0: { computable: false, loaded: 0, total: 0, percent: 100, progress: 0 }
+                                    [params.data.order]: { computable: false, loaded: 0, total: 0, percent: params.data.percent, progress: 0 }
                                 }
                             }
                         }
@@ -262,9 +301,9 @@ export function getProgress(dispatch, type, event, params) {
                         dl: {
                             [params.data.id]: {
                                 // fn: event.data.fname,
-                                // bl: '',
+                                // bloburl,
                                 ps: {
-                                    0: {
+                                    [params.data.order]: {
                                         computable: event.lengthComputable,
                                         loaded: event.loaded,
                                         total: event.total,
@@ -283,8 +322,7 @@ export function getProgress(dispatch, type, event, params) {
                     progress: {
                         dl: {
                             [params.data.id]: {
-                                fn: params.data.fname,
-                                bl: params.data.bloburl
+                                bloburl: params.data.bloburl
                             }
                         }
                     }
